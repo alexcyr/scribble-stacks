@@ -14,9 +14,38 @@ import GoogleSignIn
 import FirebaseInvites
 import FirebaseDynamicLinks
 
+protocol RecentGamesButtonCellDelegate {
+    func leftcellTapped(cell: RecentGamesButtonCell)
+    func rightcellTapped(cell: RecentGamesButtonCell)
+    
+}
+class RecentGamesButtonCell: UITableViewCell {
+    
+    var buttonDelegate: RecentGamesButtonCellDelegate?
+ 
+    @IBOutlet weak var leftButtonOutlet: UIButton!
+    @IBOutlet weak var rightButtonOutlet: UIButton!
+    
+    @IBAction func leftbuttonTap(_ sender: AnyObject) {
+        
+        if let delegate = buttonDelegate {
+            delegate.leftcellTapped(cell: self)
+            
+        }
+    }
+    
+    @IBAction func rightButtonTap(_ sender: AnyObject) {
+        if let delegate = buttonDelegate {
+            delegate.rightcellTapped(cell: self)
+        }
+    }
+    
+}
 
 
-class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDelegate,  GIDSignInDelegate, GIDSignInUIDelegate, FIRInviteDelegate   {
+
+class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDelegate,  GIDSignInDelegate, GIDSignInUIDelegate, InviteDelegate, RecentGamesButtonCellDelegate   {
+    
     
     
     @IBOutlet weak var playGameButton: UIButton!
@@ -24,15 +53,22 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
     @IBOutlet weak var homeLabel: UILabel!
     var data : String = ""
     var users: [String] = []
+    var recentGames: [NSString] = []
+    var recentGameID: [String] = []
     var usernames: [String] = []
-    var ref: FIRDatabaseReference?
+    var ref: DatabaseReference?
     var teamID: String!
+    var team: Team!
     var tableData: [String] = []
     var ready = false
     var customUrl = ""
     var encodedURL = ""
     var changeName: Bool!
     var teamTitle = ""
+    var base64String: NSString!
+    var decodedImage: UIImage!
+    var selectedGame: String = ""
+    var coins: Int?
     
     @IBOutlet weak var inviteButton: UIButton!
     @IBOutlet weak var teamName: UITextField!
@@ -41,15 +77,40 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
     @IBOutlet weak var statusText: UILabel!
     
     @IBAction func unwindToTeam(segue: UIStoryboardSegue) {}
-
     
+    func buttonTap(){
+        
+    }
+    func leftCellTapped(cell: RecentGamesButtonCell){
+        
+    }
+    func rightCellTapped(cell: RecentGamesButtonCell){
+        
+        
+    }
     @IBAction func playGamePressed(_ sender: AnyObject) {
         performSegue(withIdentifier: "TeamToBuffer", sender: self)
 
     }
-   
+    
+    func leftcellTapped(cell: RecentGamesButtonCell){
+        let cellRow = self.tableView.indexPath(for: cell)!.row
+        let count = self.tableData.count
+        self.selectedGame = recentGameID[(2 * cellRow)]
+        performSegue(withIdentifier: "ViewGame", sender: self)
+
+    }
+    func rightcellTapped(cell: RecentGamesButtonCell){
+        let cellRow = self.tableView.indexPath(for: cell)!.row
+        let count = self.tableData.count
+        self.selectedGame = recentGameID[(2 * cellRow) + 1]
+        performSegue(withIdentifier: "ViewGame", sender: self)
+
+        
+    }
+    
     @IBAction func changeTeamName(_ sender: AnyObject) {
-        let refreshAlert = UIAlertController(title: "Change Team Name", message: "Do you want to change team name for 20💰?", preferredStyle: UIAlertControllerStyle.alert)
+        let refreshAlert = UIAlertController(title: "Change Team Name", message: "Do you want to change team name for 20 coins?", preferredStyle: UIAlertControllerStyle.alert)
         
         refreshAlert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (action: UIAlertAction!) in
             
@@ -68,27 +129,50 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
+        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+        self.tableView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
+        self.tableView.allowsSelection = false
 
+        
         customUrl = "http://scribblestack.com/teamID=\(teamID!)"
         encodedURL = customUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         print(encodedURL)
         
         //navbar logo
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
-        imageView.contentMode = .scaleAspectFit
-        let image = UIImage(named: "scribble-logo.png")
+        let image = UIImage(named: "scribble-logo-light.png")
+        let logoView = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 30))
+        let imageView = UIImageView(frame: CGRect(x: -45, y: -8, width: 90, height: 46))
         imageView.image = image
-        navigationItem.titleView = imageView
-
+        imageView.contentMode = .scaleAspectFit
+        logoView.addSubview(imageView)
+        self.navigationItem.titleView = logoView
+        
         
         self.tableView.delegate = self
         self.tableView.dataSource = self
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Add", style: .plain, target: self, action: #selector(addTapped))
-
+        let attachment = NSTextAttachment()
+        attachment.bounds = CGRect(x: 0, y: -8,width: 30,height: 30);
+        attachment.image = UIImage(named: "bobCoin.png")
+        let attachmentString = NSAttributedString(attachment: attachment)
+        var attributes = [NSAttributedStringKey: AnyObject]()
+        attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0xF9A919)
+        let myString = NSMutableAttributedString(string: "\(self.coins!) ", attributes: attributes)
+        myString.append(attachmentString)
         
-        ref = FIRDatabase.database().reference()
+        let label = UILabel()
+        label.attributedText = myString
+        label.sizeToFit()
+        let newBackButton = UIBarButtonItem(customView: label)
+        self.navigationItem.rightBarButtonItem = newBackButton
+        
+        
+        
+        
+        ref = Database.database().reference()
+        
+        
         
         
     }
@@ -106,13 +190,12 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         super.viewWillAppear(animated)
         
-        self.usernames.removeAll()
+        
         
         print("poop")
-        let group1 = DispatchGroup()
         let group2 = DispatchGroup()
         
-        if let user  = FIRAuth.auth()?.currentUser{
+        if let user  = Auth.auth().currentUser{
             let userID: String = user.uid
             print("poop")
             print(userID)
@@ -132,129 +215,190 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             print(data)
             print(data)
             
-            let team = Team(id: "", teamName: "", gameCount:0, userCount: 0, time: "")
-            team.id = "\(data)"
+            group2.enter()
+            self.usernames.removeAll()
+            var n = 0
             
-            
-            group1.enter()
-            
-            
-            self.ref?.child("Teams/\(self.data)/users").observeSingleEvent(of: .value, with: { (snapshot) in
-                
-                let snap = snapshot.value! as! NSDictionary
-                print("poop")
-                print(snapshot.value)
-                self.users = Array(snap.allKeys) as! [String]
-                team.userCount = self.users.count
-                group1.leave()
-            })
-            group1.notify(queue: DispatchQueue.main, execute: {
-                group2.enter()
-                for id in self.users{
-                    var n = 0
-                    self.ref?.child("Users/\(id)").observeSingleEvent(of: .value, with: { (snapshot) in
-                        
-                        let nameData = snapshot.value as? NSDictionary
-                        let username = (nameData?["username"]! as? String)!
-                        self.usernames.append(username)
-                    })
-                    n += 1
-                }
-                group2.leave()
-                
-                
-                self.ref?.child("Teams/\(self.data)").observeSingleEvent(of: .value, with: { (snapshot) in
+            for id in team.users{
+                self.ref?.child("Users/\(id)").observeSingleEvent(of: .value, with: { (snapshot) in
                     
                     let nameData = snapshot.value as? NSDictionary
-                    team.teamName = (nameData?["team"]! as? String)!
-                    self.title = team.teamName
-                    let games = (nameData?["games"]! as? NSDictionary)!
+                    let username = (nameData?["username"]! as? String)!                    
+                    self.usernames.append(username)
+                    print("pandapandapanda")
+                    print(username)
                     
-                    teamGameCount = games.count
-                    print(team.teamName)
-                    print(team.userCount)
-                    print(team.gameCount)
-                    self.title = team.teamName
-                    self.teamTitle = team.teamName
+                    n += 1
                     
+                    if n >= self.team.users.count{
+                        print("potato")
+                        group2.leave()
+                        self.tableData.removeAll()
+                        self.tableData = self.usernames
+                        print(self.tableData)
+                        self.tableView.reloadData()
+                    }
                 })
+            }
+            
+            
+            
+            self.title = team.teamName
+            self.teamTitle = team.teamName
+            
+            
+            
+            
+            
+            var count = 0
+            /*
+             let query = self.ref?.child("Teams/\(self.data)/games").queryOrderedByValue().queryEqual(toValue: true)
+             
+             query?.observeSingleEvent(of: .value, with: { (snapshot2) in
+             
+             
+             if snapshot2.value is NSNull {
+             print("This path was null!")
+             self.tableData.removeAll()
+             self.tableData = self.usernames
+             print(self.tableData)
+             self.tableView.reloadData()
+             
+             }
+             else {
+             let gameIDSnap = snapshot2.value! as! NSDictionary
+             print("taco")
+             print(gameIDSnap)
+             let gameIDs = Array(gameIDSnap.allKeys)
+             print(gameIDs)
+             
+             
+             for gameID in gameIDs{
+             
+             
+             
+             self.ref?.child("Games/\(gameID)").observeSingleEvent(of: .value, with: { (snapshot3) in
+             
+             let gameData = snapshot3.value as? NSDictionary
+             let status = (gameData?["status"]! as? String)!
+             print(status)
+             print("puffy taco")
+             count += 1
+             if (status == "ended") || (status == "inplay"){
+             team.gameCount += 1
+             print(team.gameCount)
+             
+             }
+             print(Int(snapshot2.childrenCount))
+             
+             self.ready = true
+             print("mushu pork")
+             print(self.users)
+             print(team.gameCount)
+             if count == teamGameCount{
+             
+             if team.gameCount > 0 {
+             
+             print("spaceballs")
+             group2.leave()
+             } else{
+             
+             
+             print("spacebutt")
+             group2.leave()
+             }
+             
+             print(teamCount)
+             print("how dastardly")
+             
+             print(user)
+             
+             }
+             group2.notify(queue: DispatchQueue.main, execute: {
+             print("Finish game loop")
+             
+             
+             
+             
+             
+             print("Dandy")
+             print(self.users)
+             
+             self.tableData.removeAll()
+             self.tableData = self.usernames
+             print(self.tableData)
+             self.tableView.reloadData()
+             
+             
+             
+             })
+             
+             })
+             
+             }}
+             
+             })*/
+             group2.notify(queue: DispatchQueue.main, execute: {
+            if self.recentGames.isEmpty{
                 
+                let recentQuery = self.ref?.child("Teams/\(self.data)/games").queryOrderedByValue().queryEqual(toValue: false).queryLimited(toLast: 10)
                 
-                var count = 0
-                self.ref?.child("Teams/\(self.data)/games").observe(.childAdded, with: { (snapshot2) in
-                    
-                    let gameID = snapshot2.key
-                    print("taco")
+                recentQuery?.observeSingleEvent(of: .value, with: { (snapshot2) in
                     
                     
-                    self.ref?.child("Games/\(gameID)").observeSingleEvent(of: .value, with: { (snapshot3) in
+                    if snapshot2.value is NSNull {
+                        print("This path was null!")
                         
-                        let gameData = snapshot3.value as? NSDictionary
-                        let status = (gameData?["status"]! as? String)!
-                        print(status)
-                        print("puffy taco")
-                        count += 1
-                        if (status == "ended") || (status == "inplay"){
-                            team.gameCount += 1
-                            print(team.gameCount)
-                            
-                        }
-                        print(Int(snapshot2.childrenCount))
+                    }
+                    else {
+                        self.recentGames.removeAll()
+                        self.recentGameID.removeAll()
+                        let gameIDSnap = snapshot2.value! as! NSDictionary
+                        print("dankey kang")
+                        print(gameIDSnap)
+                        let gameIDs = Array(gameIDSnap.allKeys) as! [String]
+                        print(gameIDs)
+                        var sortedGames = gameIDs.sorted()
+                        sortedGames.reverse()
                         
-                        self.ready = true
-                        print("mushu pork")
-                        print(self.users)
-                        print(team.gameCount)
-                        if count == teamGameCount{
-                            
-                            if team.gameCount > 0 {
+                        for gameID in sortedGames{
+                            self.recentGameID.append(gameID)
+                            self.ref?.child("Games/\(gameID)").observeSingleEvent(of: .value, with: { (snapshot4) in
+                                print("snapdragon")
                                 
-                                print("spaceballs")
-                                group2.leave()
-                            } else{
+                                print(snapshot4)
+                                let gameData = snapshot4.value as? NSDictionary
+                                let turnData = (gameData?["turns"]! as? NSDictionary)!
+                                let turnKeys = Array(turnData.allKeys) as AnyObject as! [String]
+                                var sortedArray = turnKeys.sorted()
+                                var turns: [NSDictionary] = []
+                                for key in sortedArray{
+                                    turns.append(turnData["\(key)"] as! NSDictionary)
+                                }
                                 
+                                // let turns = Array(turnData.allValues)
+                                print(turns)
+                                print("blue cheese")
                                 
-                                print("spacebutt")
-                                group2.leave()
-                            }
-                            
-                            print(teamCount)
-                            print("how dastardly")
-                            
-                            print(user)
-                            group2.notify(queue: DispatchQueue.main, execute: {
-                                print("Finish game loop")
+                                let turn = turns[1] as? NSDictionary
                                 
-                                
-                                
-                                
-                                
-                                print("Dandy")
-                                print(self.users)
-                                
-                                self.tableData.removeAll()
-                                self.tableData = self.usernames
-                                print(self.tableData)
-                                self.tableView.reloadData()
-                                
-                                
-                                
+                                let turnImage = (turn?["content"]! as? NSString)
+                                print(turnImage)
+                                self.recentGames.append(turnImage!)
+                                if self.recentGames.count == gameIDs.count{
+                                    self.tableView.reloadData()
+                                }
                             })
                         }
-                        
-                        
-                    })
-                    
-                    
-                    
+                    }
                 })
+            }
             })
             
         }
         
         
-        
-        
+    
         
         
 
@@ -262,11 +406,11 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
 
     
-    func addTapped(){
+    @objc private func addTapped(_ sender: UIButton?){
         GIDSignIn.sharedInstance().delegate = self
         if GIDSignIn.sharedInstance().hasAuthInKeychain() {
             // Signed in
-            if let invite = FIRInvites.inviteDialog() {
+            if let invite = Invites.inviteDialog() {
                 invite.setInviteDelegate(self)
                 
                 // NOTE: You must have the App Store ID set in your developer console project
@@ -299,36 +443,160 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         
     }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("section count")
-       print(tableData.count)
-        let count = tableData.count + 1
-        return count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        if indexPath.row < 1{
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: "TeamNameCell", for: indexPath as IndexPath)
-            
-            let label = cell.viewWithTag(25) as! UILabel
-            
-            
-            label.text = self.teamTitle
-            
-            
-            
-            return cell
+    func numberOfSections(in: UITableView) -> Int {
+        if recentGames.count == 0{
+            return 2
         }
         else{
-            let cellText = tableData[(indexPath.row)-1]
+        return 3
+        }
+    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if section < 1{
+             return 1
+        }
+        else if section == 1{
+            print("arghhh mateee")
+            print(tableData.count)
+            return usernames.count
+        }
+        else {
+            var rowCount = recentGames.count
+            if (rowCount%2) == 0{
+                return (rowCount/2)
+            }
+            else{
+                return (rowCount/2) + 1
+            }
+            
+        }
+    }
+    let headerTitles = ["", "TEAM MEMBERS", "RECENT GAMES"]
+    
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if section == 0{
+            let view = UIView(frame: CGRect(x:0, y:0, width:tableView.frame.size.width, height:0))
+            return view
+            
+        }
+        else if section == 1{
+            let button = UIButton(frame: CGRect(x:tableView.frame.size.width - 150, y:6, width:150, height:30))
+            button.addTarget(self, action: #selector(addTapped(_:)), for: .touchUpInside)
+            button.titleLabel?.textAlignment = NSTextAlignment.right
+           // button.semanticContentAttribute = .forceRightToLeft
+            button.setTitle("+ADD PLAYERS", for: .normal)
+            button.setTitleColor(UIColorFromRGB(rgbValue: 0x01A8B9), for: .normal)
+            button.titleLabelFont = UIFont(name: "Rajdhani-Bold", size: 18)
+            
+            let view = UIView(frame: CGRect(x:15, y:0, width:tableView.frame.size.width - 30, height:30))
+            let label = UILabel(frame: CGRect(x:15, y:6, width:tableView.frame.size.width - 30, height:30))
+            let line = UIView(frame: CGRect(x:15, y:15, width:tableView.frame.size.width - 30, height:30))
+            line.bounds = CGRect(x: 15, y: -8, width: self.view.frame.width - 30, height: 1)
+            line.backgroundColor = UIColorFromRGB(rgbValue: 0xF9A919)
+            print("im in ny")
+            print(section)
+            label.text = "\(headerTitles[section])"
+            
+            
+            
+            label.font = UIFont(name: "Rajdhani-Bold", size: 14)
+            label.textColor = UIColorFromRGB(rgbValue: 0xF9A919)
+            view.addSubview(button)
+            view.addSubview(label)
+            view.addSubview(line)
+            view.backgroundColor = UIColor.white;
+            return view
+        }
+        else{
+            let view = UIView(frame: CGRect(x:15, y:0, width:tableView.frame.size.width - 30, height:30))
+            let label = UILabel(frame: CGRect(x:15, y:6, width:tableView.frame.size.width - 30, height:30))
+            let line = UIView(frame: CGRect(x:15, y:15, width:tableView.frame.size.width - 30, height:30))
+            line.bounds = CGRect(x: 15, y: -8, width: self.view.frame.width - 30, height: 1)
+            line.backgroundColor = UIColorFromRGB(rgbValue: 0xF9A919)
+            print("im in ny")
+            print(section)
+            label.text = "\(headerTitles[section])"
+            
+            
+            
+            label.font = UIFont(name: "Rajdhani-Bold", size: 14)
+            label.textColor = UIColorFromRGB(rgbValue: 0xF9A919)
+            view.addSubview(label)
+            view.addSubview(line)
+            view.backgroundColor = UIColor.white;
+            return view
+        }
+        
+    }
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if section == 0{
+            return 0
+            
+        }
+        else if section == 1{
+            return 35
+        }
+        else{
+            return (UIScreen.main.bounds.width/2)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch section
+        {
+        case 0:
+            return headerTitles[0]
+        case 1:
+            return headerTitles[1]
+        case 2:
+            return headerTitles[2]
+        default:
+            return "No More Data"
+        }
+        
+    }
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
+    {
+        let n = indexPath.section
+       
+            if(n == 0){
+                return 138.0
+            }
+            else if n == 1{
+                    return 25.0
+            }
+            else{
+                return 160.0
+            }
+        
+         
+        
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let n = indexPath.row
+        if indexPath.section == 0{
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: "TeamNameCell", for: indexPath as IndexPath)
+            cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+
+            let label = cell.viewWithTag(25) as! UILabel
+            
+            label.text = self.teamTitle
+
+            return cell
+        }
+        else if indexPath.section == 1{
+            let cellText = usernames[n]
             print("holy roller")
             print(cellText)
         let cell = tableView.dequeueReusableCell(
             withIdentifier: "WordSelect", for: indexPath as IndexPath)
-        
+            cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+            //cell.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
+            //cell.layer.borderWidth = 1
+
         let label = cell.viewWithTag(1000) as! UILabel
         
         
@@ -337,6 +605,65 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         
         return cell
+        }
+        else{
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: "RecentGames", for: indexPath as IndexPath) as! RecentGamesButtonCell
+            cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+            
+            
+            
+            if cell.buttonDelegate == nil {
+                cell.buttonDelegate = self
+            }
+            
+           
+            
+       
+           //left image
+            print("count54321")
+
+            print(recentGames.count)
+            print(recentGames)
+            if let imageDate = recentGames[2 * n] as NSString!{
+            self.base64String = recentGames[2 * n] as NSString!
+            var decodedData = NSData(base64Encoded: self.base64String as String, options: NSData.Base64DecodingOptions())
+                if decodedData != nil{
+            self.decodedImage = UIImage(data: decodedData! as Data)!
+                }
+            var gameImage = self.decodedImage!
+            cell.leftButtonOutlet.setImage(gameImage.withRenderingMode(.alwaysOriginal), for: .normal)
+                cell.leftButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
+                cell.leftButtonOutlet.layer.borderWidth = 1
+
+            //right image
+             if (recentGames.count)%2 != 0{
+                if (recentGames.count/2 == n){
+                    cell.rightButtonOutlet.isHidden = true
+                }
+                    
+                else{
+            self.base64String = recentGames[(2 * n) + 1] as NSString!
+            decodedData = NSData(base64Encoded: self.base64String as String, options: NSData.Base64DecodingOptions())
+            self.decodedImage = UIImage(data: decodedData! as Data)!
+            gameImage = self.decodedImage!
+            cell.rightButtonOutlet.setImage(gameImage.withRenderingMode(.alwaysOriginal), for: .normal)
+                    cell.rightButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
+                    cell.rightButtonOutlet.layer.borderWidth = 1
+
+            }
+            }
+             else{
+                self.base64String = recentGames[(2 * n) + 1] as NSString!
+                decodedData = NSData(base64Encoded: self.base64String as String, options: NSData.Base64DecodingOptions())
+                self.decodedImage = UIImage(data: decodedData! as Data)!
+                gameImage = self.decodedImage!
+                cell.rightButtonOutlet.setImage(gameImage.withRenderingMode(.alwaysOriginal), for: .normal)
+                cell.rightButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
+                cell.rightButtonOutlet.layer.borderWidth = 1
+                }}
+            return cell
+
         }
         
         //  Now do whatever you were going to do with the title.
@@ -358,7 +685,20 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             if teamID != nil{
                 controller.teamID = teamID
                 controller.changeName = changeName
+                controller.team = team
+                controller.coins = self.coins
 
+                self.ref?.removeAllObservers()
+                
+            }
+            
+        }
+        if segue.identifier == "ViewGame" {
+            
+            let controller = segue.destination as! EndGameViewController
+            if teamID != nil{
+                controller.gameID = selectedGame
+                
                 self.ref?.removeAllObservers()
                 
             }

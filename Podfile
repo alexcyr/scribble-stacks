@@ -7,7 +7,6 @@ target 'ScribbleStack' do
 
   # Pods for ScribbleStack
 
-
 pod 'Firebase/Core'
 pod 'Firebase/Auth'
 pod 'Firebase/Database'
@@ -18,7 +17,7 @@ pod 'SideMenu'
 pod 'NVActivityIndicatorView'
 pod 'DHSmartScreenshot'
 pod 'lottie-ios'
-
-
+pod 'Fakery'
+pod 'SwipeableTabBarController'
 
 end

@@ -94,11 +94,30 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 self.tableView.reloadData()
 
                 
-                self.ref?.child("Users/\(self.userID)/Words/\(rightTitle)").setValue(true)
+                self.wordDictionary["\(rightTitle)"] = true
+                UserDefaults.standard.setValue(self.wordDictionary, forKey: "ownedWords")
                 
-                self.coins = self.coins - rightValue
-                self.ref?.child("Users/\(self.userID)/currency").setValue(self.coins)
-                self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "\(self.coins)💰", style: .plain, target: self, action: #selector(self.barButtonItemClicked))
+                var localCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+                var total = rightValue
+                var dbCoins = self.coins - localCoins
+                if(dbCoins >= rightValue){
+                    dbCoins = dbCoins - total
+                }
+                else{
+                    
+                    total = total - dbCoins
+                    dbCoins = 0
+                    localCoins = localCoins - total
+                    UserDefaults.standard.setValue(localCoins, forKey: "earnedCoins")
+
+                }
+                self.coins = localCoins + dbCoins
+                if Auth.auth().currentUser != nil{
+                    self.ref?.child("Users/\(self.userID)/currency").setValue(dbCoins)
+                }
+                
+                self.setCoins()
+
                 
                 
             }))
@@ -119,10 +138,13 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
             refreshAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
                 
                 let coinValue = Int(rightTitle)
+                
+
 
                 self.coins = self.coins + coinValue!
                 self.ref?.child("Users/\(self.userID)/currency").setValue(self.coins)
-                self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "\(self.coins)💰", style: .plain, target: self, action: #selector(self.barButtonItemClicked))
+                self.setCoins()
+
                 
             }))
             
@@ -142,7 +164,7 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
    func leftcellTapped(cell: ShopButtonCell) {
     let cellRow = self.tableView.indexPath(for: cell)!.row
-    var sectionCount = self.tableView.indexPath(for: cell)!.section
+    let sectionCount = self.tableView.indexPath(for: cell)!.section
    
     let cellTextLeft = tableData[sectionCount][2 * cellRow]
     let leftTitle = cellTextLeft.name
@@ -176,16 +198,35 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let refreshAlert = UIAlertController(title: "Purchase Item?", message: "Spend \(leftValue) coins to unlock \(leftTitle) wordpack?", preferredStyle: UIAlertControllerStyle.alert)
         
         refreshAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-            self.coins = self.coins - leftValue
             self.ownedWords.append(leftTitle)
             cellTextLeft.owned = true
             self.tableData[sectionCount][(2 * cellRow)] = cellTextLeft
             self.tableView.reloadData()
             
+            self.wordDictionary["\(leftTitle)"] = true
+            UserDefaults.standard.setValue(self.wordDictionary, forKey: "ownedWords")
             
-            self.ref?.child("Users/\(self.userID)/Words/\(leftTitle)").setValue(true)
-            self.ref?.child("Users/\(self.userID)/currency").setValue(self.coins)
-            self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "\(self.coins)💰", style: .plain, target: self, action: #selector(self.barButtonItemClicked))
+            var localCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+            var total = leftValue
+            var dbCoins = self.coins - localCoins
+            if(dbCoins >= leftValue){
+                dbCoins = dbCoins - total
+            }
+            else{
+                
+                total = total - dbCoins
+                dbCoins = 0
+                localCoins = localCoins - total
+                UserDefaults.standard.setValue(localCoins, forKey: "earnedCoins")
+                
+            }
+            self.coins = localCoins + dbCoins
+            if Auth.auth().currentUser != nil{
+                self.ref?.child("Users/\(self.userID)/currency").setValue(dbCoins)
+            }
+            
+            self.setCoins()
+
             
             
         }))
@@ -206,8 +247,10 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         refreshAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
             let coinValue = Int(leftTitle)
             self.coins = self.coins + coinValue!
+       
             self.ref?.child("Users/\(self.userID)/currency").setValue(self.coins)
-            self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "\(self.coins)💰", style: .plain, target: self, action: #selector(self.barButtonItemClicked))
+            self.setCoins()
+
         }))
         
         refreshAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
@@ -229,40 +272,73 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var data : String!
     var wordPacks: [ShopItem] = []
     var coinPacks: [ShopItem] = []
-    var ref: FIRDatabaseReference?
+    var ref: DatabaseReference?
     var wordGroups: [Any] = []
     var ownedWords: [Any] = []
+    var wordDictionary: [String: Any] = [:]
     var teamID: String!
     var tableData: [[ShopItem]] = []
     var ready = false
     var coins = 0
     var userID = ""
+    var base64String: NSString!
+    let screenWidth = UIScreen.main.bounds.width
+
+    
+    fileprivate func setCoins() {
+        let attachment = NSTextAttachment()
+        attachment.bounds = CGRect(x: 0, y: -8,width: 30,height: 30);
+        attachment.image = UIImage(named: "bobCoin.png")
+        let attachmentString = NSAttributedString(attachment: attachment)
+        var attributes = [NSAttributedStringKey: AnyObject]()
+        attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0xF9A919)
+        let myString = NSMutableAttributedString(string: "\(self.coins) ", attributes: attributes)
+        myString.append(attachmentString)
+        
+        let label = UILabel()
+        label.attributedText = myString
+        label.sizeToFit()
+        let newBackButton = UIBarButtonItem(customView: label)
+        
+        
+        self.navigationItem.rightBarButtonItem = newBackButton
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         
-        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
-        self.tableView.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
+        wordDictionary = UserDefaults.standard.dictionary(forKey: "ownedWords")!
+        self.ownedWords = Array(wordDictionary.keys)
+        
+        let earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+        self.coins = earnedCoins
+        
+        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+        self.tableView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
         self.tableView.allowsSelection = false
         
         
         //navbar logo
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
-        imageView.contentMode = .scaleAspectFit
-        let image = UIImage(named: "scribble-logo.png")
+        let image = UIImage(named: "scribble-logo-light.png")
+        let logoView = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 30))
+        let imageView = UIImageView(frame: CGRect(x: -45, y: -8, width: 90, height: 46))
         imageView.image = image
-        navigationItem.titleView = imageView
+        imageView.contentMode = .scaleAspectFit
+        logoView.addSubview(imageView)
+        self.navigationItem.titleView = logoView
         
         self.tableView.delegate = self
         self.tableView.dataSource = self
         
-        ref = FIRDatabase.database().reference()
+        ref = Database.database().reference()
         
-        var coinPack1 = ShopItem(name: "50", owned: false, value: 1)
-        var coinPack2 = ShopItem(name: "150", owned: false, value: 2)
-        var coinPack3 = ShopItem(name: "500", owned: false, value: 5)
+        var coinPack1 = ShopItem(name: "50", owned: false, value: 1, image: UIImage(named: "bobCoin.png")!)
+        var coinPack2 = ShopItem(name: "150", owned: false, value: 2,  image: UIImage(named: "bobCoin.png")!)
+        var coinPack3 = ShopItem(name: "500", owned: false, value: 5,  image: UIImage(named: "bobCoin.png")!)
+        
         coinPacks.append(coinPack1)
+        
         coinPacks.append(coinPack2)
         coinPacks.append(coinPack3)
         
@@ -270,23 +346,26 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let group1 = DispatchGroup()
         let group2 = DispatchGroup()
         group1.enter()
-        if let user  = FIRAuth.auth()?.currentUser{
+        
+        var teamTotal = 0
+        var teamCount = 0
+        var teamGameCount = 0
+        var allWordsDict: NSDictionary?
+        if let user  = Auth.auth().currentUser{
             userID = user.uid
             print("dame")
             print(userID)
+           allWordsDict = UserDefaults.standard.dictionary(forKey: "wordList")! as NSDictionary
             
-            var teamTotal = 0
-            var teamCount = 0
-            var teamGameCount = 0
             self.ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
                 print(snapshot)
                 if snapshot.hasChildren(){
                     let snap = snapshot.value! as! NSDictionary
-                    self.coins = (snap["currency"] as! Int)
+                    self.coins = self.coins + (snap["currency"] as! Int)
                     let wordData = (snap["Words"] as! NSDictionary)
                     print("poop")
                     print(snapshot.value)
-                    self.ownedWords = Array(wordData.allKeys)
+                    //self.ownedWords = Array(wordData.allKeys)
                     print(self.ownedWords)
                     print("rocka")
                    
@@ -298,24 +377,23 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 
                 
             })
-            
+        }
+        else{
+            allWordsDict = self.loadJson(forFilename: "words")
+            group1.leave()
+        }
             group1.notify(queue: DispatchQueue.main, execute: {
-                self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "\(self.coins)💰", style: .plain, target: self, action: #selector(self.barButtonItemClicked))
+                self.setCoins()
             group2.enter()
-            self.ref?.child("Words").observeSingleEvent(of: .value, with: { (snapshot) in
-                print(snapshot)
-                if snapshot.hasChildren(){
-                    let snap = snapshot.value! as! NSDictionary
-                    print("Tada")
-                    print(snapshot.value)
-                    self.wordGroups = Array(snap.allKeys)
+           
+               
+
+                self.wordGroups = Array(allWordsDict!.allKeys)
                     print(self.wordGroups)
                     print("limes")
                     teamTotal = self.wordGroups.count
-                    print(teamTotal)
                     var n = 0
                     for words in self.wordGroups{
-                        
                         let word = words as! String
                         if word == "Base"{
                             self.wordGroups.remove(at: n)
@@ -323,7 +401,13 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                         }
                         else{
                         n += 1
-                        var wordPack = ShopItem(name: "", owned: false, value: 50)
+                            let wordObject = (allWordsDict!["\(word)"] as! NSDictionary)
+                            self.base64String = wordObject.value(forKey: "Image") as! NSString? ?? ""
+                            print(self.base64String)
+                            let decodedData = NSData(base64Encoded: self.base64String as String, options: NSData.Base64DecodingOptions())
+                            let wordImage = UIImage(data: decodedData! as Data)!
+                          
+                            let wordPack = ShopItem(name: "", owned: false, value: 50, image: wordImage)
                         wordPack.name = word
                         for x in self.ownedWords{
                             let owned = x as! String
@@ -335,14 +419,10 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                         self.wordPacks.append(wordPack)
                         }
                     }
+                    print(self.wordPacks)
                     
                     group2.leave()
-                }
-                
-                
-                
-                
-            })
+             
             
             group2.notify(queue: DispatchQueue.main, execute: {
                 self.tableData.append(self.wordPacks)
@@ -351,10 +431,27 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 print(self.tableData)
             })
             })
-        }
+        
         
     }
-    func barButtonItemClicked(sender: UIBarButtonItem) {
+    
+    func loadJson(forFilename fileName: String) -> NSDictionary? {
+        
+        if let path = Bundle.main.path(forResource: "\(fileName)", ofType: "json") {
+            do {
+                let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                if let jsonResult = jsonResult as? NSDictionary{
+                    return jsonResult                }
+            } catch {
+                print("Error!! Unable to parse  \(fileName).json")
+            }
+        }
+        print("Error!! Unable to load  \(fileName).json")
+        
+        return nil
+    }
+    @objc func barButtonItemClicked(sender: UIBarButtonItem) {
         print("clicked")
     }
     
@@ -399,8 +496,8 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
             cell.buttonDelegate = self
         }
         
-        cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
-        cell.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
+        cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+        cell.layer.borderColor = UIColorFromRGB(rgbValue: 0xffffff).cgColor
         cell.layer.borderWidth = 3
         
         let cellTextLeft = tableData[indexPath.section][2 * n]
@@ -408,50 +505,91 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let leftValue = cellTextLeft.value
         
         print(leftTitle)
-        let count = self.tableData[0].count
+        let count = self.tableData[indexPath.section].count
         let rowCount = ((count/2) + (count%2))
         
         if indexPath.section < 1{
         cell.leftButtonOutlet.setTitle("\(leftTitle)", for: .normal)
+            cell.leftButtonOutlet.setBackgroundImage(cellTextLeft.image, for: .normal)
+      
+
         cell.leftLabelOutlet.text = "\(leftTitle) - \(leftValue)💰"
         let cellOwned = cellTextLeft.owned as Bool
             if cellOwned{
                 cell.leftButtonOutlet.layer.borderWidth = 8
-                cell.leftButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0x01A7B9).cgColor
-                
+                cell.leftButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xF9A919).cgColor
             }
         }
         else{
+            cell.leftButtonOutlet.setTitle("", for: .normal)
             cell.leftLabelOutlet.text = "\(leftTitle) coins - $\(leftValue).00"
+            cell.leftButtonOutlet.setBackgroundImage(cellTextLeft.image, for: .normal)
+
         }
-        if n%2 == 0{
+        if n != (rowCount - 1){
+            
             let cellTextRight = tableData[indexPath.section][(2 * n) + 1]
-        var rightTitle = cellTextRight.name
+        let rightTitle = cellTextRight.name
         
             let rightValue = cellTextRight.value
             if indexPath.section < 1{
                 cell.rightLabelOutlet.text = "\(rightTitle) - \(rightValue)💰"
                 cell.rightButtonOutlet.setTitle("\(rightTitle)", for: .normal)
+                cell.rightButtonOutlet.setBackgroundImage(cellTextRight.image, for: .normal)
+                
+
                 let cellOwned = cellTextRight.owned as Bool
                 if cellOwned{
                     cell.rightButtonOutlet.layer.borderWidth = 8
-                    cell.rightButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0x01A7B9).cgColor
+                    cell.rightButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xF9A919).cgColor
                     
                 }
             }
             else{
+                cell.rightButtonOutlet.setTitle("", for: .normal)
                 cell.rightLabelOutlet.text = "\(rightTitle) coins - $\(rightValue).00"
+                cell.rightButtonOutlet.setBackgroundImage(cellTextRight.image, for: .normal)
+
 
             }
+            
         }
         else{
+            if count%2 == 0{
+                let cellTextRight = tableData[indexPath.section][(2 * n) + 1]
+                let rightTitle = cellTextRight.name
+                
+                let rightValue = cellTextRight.value
+                if indexPath.section < 1{
+                    cell.rightLabelOutlet.text = "\(rightTitle) - \(rightValue)💰"
+                    cell.rightButtonOutlet.setTitle("\(rightTitle)", for: .normal)
+                    cell.rightButtonOutlet.setBackgroundImage(cellTextRight.image, for: .normal)
+                    
+                   
+                    let cellOwned = cellTextRight.owned as Bool
+                    if cellOwned{
+                        cell.rightButtonOutlet.layer.borderWidth = 8
+                        cell.rightButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xF9A919).cgColor
+                        
+                    }
+                }
+                else{
+                    cell.rightButtonOutlet.setTitle("", for: .normal)
+                    cell.rightLabelOutlet.text = "\(rightTitle) coins - $\(rightValue).00"
+                    cell.rightButtonOutlet.setBackgroundImage(cellTextRight.image, for: .normal)
+                    
+                }
+            }
+            else{
             cell.rightButtonOutlet.isHidden = true
             cell.rightLabelOutlet.isHidden = true
+            }
         }
         return cell
         
         //  Now do whatever you were going to do with the title.
     }
+    
     
     let headerTitles = ["Word Expansions", "Purchase Coins"]
     
@@ -471,7 +609,17 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int){
         
         let header = view as! UITableViewHeaderFooterView
-        view.tintColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
+        view.tintColor = UIColorFromRGB(rgbValue: 0xffffff)
+    }
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 60;
+    }
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
+    {
+        let n = indexPath.row
+        
+       return (screenWidth/2) + 30
+        
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
@@ -496,18 +644,9 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
             }
             
         }
-        if segue.identifier == "TestEnd" {
-            
-            let gameID = "-KdwB7ZmZ2a2ChfWxlxq"
-            
-            let controller = segue.destination as! EndGameViewController
-        
-            controller.gameID = gameID
-            
-            
-            
      
-        }
+        
+       
     }
     
 }

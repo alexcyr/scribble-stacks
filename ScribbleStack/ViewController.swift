@@ -17,10 +17,13 @@ class ViewController: UIViewController,  GIDSignInUIDelegate {
     
     @IBOutlet weak var statusLabel: UILabel?
     let data = "This is the data"
-    var ref: FIRDatabaseReference!
+    var ref: DatabaseReference!
+    var first: Bool?
     var loggedIn = false
-    var counter = 3
+    var counter = Int.max
+    var n = 0
     var didStart = false
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     @IBOutlet weak var activityIndicator: NVActivityIndicatorView!
     
@@ -32,7 +35,7 @@ class ViewController: UIViewController,  GIDSignInUIDelegate {
         super.viewDidLoad()
         
  
-        if (FIRAuth.auth()?.currentUser) != nil  {
+        if (Auth.auth().currentUser) != nil  {
         statusLabel?.text = "Loading user data..."
         loggedIn = true
        activityIndicator.startAnimating()
@@ -42,8 +45,8 @@ class ViewController: UIViewController,  GIDSignInUIDelegate {
         setupGoogleButtons()
         
         
-        ref = FIRDatabase.database().reference()
-
+        ref = Database.database().reference()
+            
        
        
         }
@@ -63,45 +66,49 @@ class ViewController: UIViewController,  GIDSignInUIDelegate {
      
     }
     
-    func googlePressed(button: UIButton){
+    @objc func googlePressed(button: UIButton){
         let button = self.view.viewWithTag(222)
         button?.isHidden = true
         didStart = true
         statusLabel?.text = "Logging in user..."
         activityIndicator.startAnimating()
     }
-    func updateCounter() {
+    @objc func updateCounter() {
         if didStart && counter > 0 {
             counter -= 1
-            
-        }
-        else if didStart && counter == 3{
-            
-            if (FIRAuth.auth()?.currentUser) != nil  {
+            n += 1
+            if (Auth.auth().currentUser) != nil  {
                 performSegue(withIdentifier: "LoginToHome", sender: self)
-                
+                loggedIn = true
+                didStart = false
+
+            }
+        }
+        else if didStart && (n * 3) == 15{
+            
+            if (Auth.auth().currentUser) != nil  {
+                performSegue(withIdentifier: "LoginToHome", sender: self)
+                loggedIn = true
+                didStart = false
+
             }
             
         }
-        else if didStart && counter == 0{
-            didStart = false
-            counter = 3
-            if (FIRAuth.auth()?.currentUser) != nil  {
-                performSegue(withIdentifier: "LoginToHome", sender: self)
-                
-            }
-            else{
+                   else if didStart && n % 45 == 0{
                 statusLabel?.text = "Unable to login. Try again?"
                 let button = self.view.viewWithTag(222)
                 button?.isHidden = false
                 activityIndicator.stopAnimating()
+                didStart = false
+                n = 0
             }
-        }
+        
         
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        if (FIRAuth.auth()?.currentUser) != nil{
+        if (Auth.auth().currentUser) != nil{
+            print("hai")
             loggedIn = true
             performSegue(withIdentifier: "LoginToHome", sender: self)
         }
@@ -110,6 +117,7 @@ class ViewController: UIViewController,  GIDSignInUIDelegate {
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(true, animated: animated)
         super.viewWillAppear(animated)
+        
     }
   
     
@@ -120,11 +128,14 @@ class ViewController: UIViewController,  GIDSignInUIDelegate {
    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+       
+        
         if segue.identifier == "LoginToHome" {
             let DestViewController = segue.destination as! UINavigationController
-            let targetController = DestViewController.topViewController as! HomeViewController
-            
+            let targetController = DestViewController.topViewController as! TabBarViewController
+            first = appDelegate.returnFirst()
             targetController.data = data
+            targetController.first = first
         }
     }
 }

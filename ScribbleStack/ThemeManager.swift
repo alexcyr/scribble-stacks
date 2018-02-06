@@ -31,6 +31,7 @@ extension UIImage {
 class ThemeManager {
     
     static func applyTheme() {
+        /*
         let proxyNormalButton = UIButton.appearance()
         proxyNormalButton.setTitleColor(Styles.buttonTextColor, for: .normal)
         let buttonImage = Styles.setNormalBackgroundImage
@@ -49,14 +50,14 @@ class ThemeManager {
         proxyNormalButton.layer.shadowRadius = 0.0
         proxyNormalButton.layer.masksToBounds = false
         proxyNormalButton.layer.cornerRadius = 6.0
-        
+        */
         let blue = UIColorFromRGB(rgbValue: 0x01A7B9)
         let darkBlue = UIColorFromRGB(rgbValue: 0x047799)
   
        
         UINavigationBar.appearance().barTintColor = UIColorFromRGB(rgbValue: 0x01A7B9)
         UINavigationBar.appearance().tintColor = UIColor.white
-        UINavigationBar.appearance().titleTextAttributes = [NSForegroundColorAttributeName : UIColor.white]
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedStringKey.foregroundColor : UIColor.white]
 
         // Sets Bar's Background Image (Color) //
         UINavigationBar.appearance().setBackgroundImage(UIImage.imageWithColor(color: blue), for: .default)

@@ -13,7 +13,7 @@ import FirebaseDatabase
 class WordSelectViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var tableView: UITableView!
-    var ref: FIRDatabaseReference!
+    var ref: DatabaseReference!
     var teamID: String?
     var gameID: String!
     var ownedWords: [Any] = []
@@ -22,60 +22,134 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
     var coins = 0
     let game = Game(captions: [], images: [])
     var getRandomWord: [String] = []
-    var words = ["WALK THE DOG","BRUSHING TEETH","POTATO","SKYDIVING","HOTDOG","CATDOG","PINATA","SUPERMAN","PIG IN A BLANKET","BANANA", "TACO","STAIRWAY TO HEAVEN","TURTLE SOUP","BASEBALL","BEACH","REINDEER LAYING AN EGG"]
+    var words = ["DOG CHASING A CAR","BRUSHING TEETH","POTATO","SKYDIVING","HOTDOG","CATDOG","PINATA","SUPERMAN","PIG IN A BLANKET","BANANA", "TACO","STAIRWAY TO HEAVEN","TURTLE SOUP","BASEBALL","BEACH","REINDEER LAYING AN EGG"]
     
     @IBAction func refreshWords(_ sender: AnyObject) {
-        let refreshAlert = UIAlertController(title: "Refresh Words", message: "Spend 20💰 to get a new set of words?", preferredStyle: UIAlertControllerStyle.alert)
+      
+        let cost = 20
+        if coins >= cost{
+            
+            let refreshAlert = UIAlertController(title: "Refresh Words", message: "Spend \(cost) coins to get a new set of words?", preferredStyle: UIAlertControllerStyle.alert)
+            
+            refreshAlert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (action: UIAlertAction!) in
+                
+            }))
+            
+            refreshAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
+                self.loadWords()
+                var localCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+                var total = cost
+                var dbCoins = self.coins - localCoins
+                if(dbCoins >= cost){
+                    dbCoins = dbCoins - total
+                }
+                else{
+                    
+                    total = total - dbCoins
+                    dbCoins = 0
+                    localCoins = localCoins - total
+                    UserDefaults.standard.setValue(localCoins, forKey: "earnedCoins")
+                    
+                }
+                self.coins = localCoins + dbCoins
+                if Auth.auth().currentUser != nil{
+                    self.ref?.child("Users/\(self.userID)/currency").setValue(self.coins)
+                }
+                
+                
+                
+            }))
+            
+            
+            
+            present(refreshAlert, animated: true, completion: nil)
+        }
+        else{
+        let refreshAlert = UIAlertController(title: "Not Enough Coins", message: "You need at least \(cost) coins to get a new set of words?", preferredStyle: UIAlertControllerStyle.alert)
         
-        refreshAlert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (action: UIAlertAction!) in
+        refreshAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action: UIAlertAction!) in
             
         }))
-        
-        refreshAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-            self.loadWords()
-            
-        }))
+       
         
         
         
         present(refreshAlert, animated: true, completion: nil)
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
-        self.tableView.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
+        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+        self.tableView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
 
         // Do any additional setup after loading the view, typically from a nib.
 
             // Do any additional setup after loading the view, typically from a nib.
-        ref = FIRDatabase.database().reference()
+        ref = Database.database().reference()
         tableView.delegate = self
         tableView.dataSource = self
         
         //navbar logo
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
-        imageView.contentMode = .scaleAspectFit
-        let image = UIImage(named: "scribble-logo.png")
+        let image = UIImage(named: "scribble-logo-light.png")
+        let logoView = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 30))
+        let imageView = UIImageView(frame: CGRect(x: -45, y: -8, width: 90, height: 46))
         imageView.image = image
-        navigationItem.titleView = imageView
+        imageView.contentMode = .scaleAspectFit
+        logoView.addSubview(imageView)
+        self.navigationItem.titleView = logoView
         
-        if let user = FIRAuth.auth()?.currentUser{
-            userID = user.uid
+        let earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+        self.coins = earnedCoins
+        
             loadWords()
             
-        }
-        else{
-            
+        
+       
+            /*
             let wordsLength = words.count
             let getRandom = randomSequenceGenerator(min: 1, max: wordsLength)
             for _ in 1...3 {
                 print(getRandom())
                 getRandomWord.append(words[getRandom()-1])
             }
-        }
+        */
+            
+            let attachment = NSTextAttachment()
+            attachment.bounds = CGRect(x: 0, y: -8,width: 30,height: 30);
+            attachment.image = UIImage(named: "bobCoin.png")
+            let attachmentString = NSAttributedString(attachment: attachment)
+            var attributes = [NSAttributedStringKey: AnyObject]()
+            attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0xF9A919)
+            let myString = NSMutableAttributedString(string: "\(self.coins) ", attributes: attributes)
+            myString.append(attachmentString)
+            
+            let label = UILabel()
+            label.attributedText = myString
+            label.sizeToFit()
+            let newBackButton = UIBarButtonItem(customView: label)
+            
+            self.navigationItem.rightBarButtonItem = newBackButton
+        
         
     }
+    func loadJson(forFilename fileName: String) -> NSDictionary? {
+        
+        if let path = Bundle.main.path(forResource: "\(fileName)", ofType: "json") {
+            do {
+                let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                if let jsonResult = jsonResult as? NSDictionary{
+                        return jsonResult                }
+            } catch {
+                print("Error!! Unable to parse  \(fileName).json")
+            }
+        }
+        print("Error!! Unable to load  \(fileName).json")
+        
+        return nil
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         super.viewWillAppear(animated)
@@ -100,16 +174,20 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
         self.ownedWordsBool.removeAll()
         self.getRandomWord.removeAll()
 
+        var wordDict: NSDictionary?
+        
         let group1 = DispatchGroup()
-        let group2 = DispatchGroup()
         
         group1.enter()
-        
+        if let user = Auth.auth().currentUser{
+            userID = user.uid
+            wordDict = UserDefaults.standard.dictionary(forKey: "wordList") as! NSDictionary
+
         self.ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
             print(snapshot)
             if snapshot.hasChildren(){
                 let snap = snapshot.value! as! NSDictionary
-                self.coins = (snap["currency"] as! Int)
+                self.coins = self.coins + (snap["currency"] as! Int)
                 let wordData = (snap["Words"] as! NSDictionary)
                 print("poop")
                 print(snapshot.value)
@@ -137,18 +215,57 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
             }
         })
         
-        
+        }
+        else{
+            wordDict = self.loadJson(forFilename: "words") 
+            let wordData = UserDefaults.standard.dictionary(forKey: "ownedWords")!
+            self.ownedWords = Array(wordData.keys)
+            self.ownedWordsBool = Array(wordData.values)
+            print(self.ownedWords)
+            print(self.ownedWordsBool)
+            print("rocka")
+            var count = 0
+            for _ in self.ownedWords{
+                let ownedBool = self.ownedWordsBool[count] as! Bool
+                if ownedBool == false{
+                    self.ownedWordsBool.remove(at: count)
+                    self.ownedWords.remove(at: count)
+                    count = count - 1
+                }
+                count = count + 1
+                print(count)
+                print(self.ownedWords.count)
+                print("woah now")
+                if count == self.ownedWords.count{
+                    group1.leave()
+                }
+            }
+            
+        }
         
         group1.notify(queue: DispatchQueue.main, execute: {
-            self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "\(self.coins)💰", style: .plain, target: self, action: #selector(self.barButtonItemClicked))
+            let attachment = NSTextAttachment()
+            attachment.bounds = CGRect(x: 0, y: -8,width: 30,height: 30);
+            attachment.image = UIImage(named: "bobCoin.png")
+            let attachmentString = NSAttributedString(attachment: attachment)
+            var attributes = [NSAttributedStringKey: AnyObject]()
+            attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0xF9A919)
+            let myString = NSMutableAttributedString(string: "\(self.coins) ", attributes: attributes)
+            myString.append(attachmentString)
             
-            self.ref.child("Words").observeSingleEvent(of: .value, with: { (snapshot) in
-                print("licorice snape")
-                let data = snapshot.value! as! NSDictionary
+            let label = UILabel()
+            label.attributedText = myString
+            label.sizeToFit()
+            let newBackButton = UIBarButtonItem(customView: label)
+            
+            self.navigationItem.rightBarButtonItem = newBackButton
+            
+            let data = wordDict!
                 print(data)
                 self.words = []
                 for word in self.ownedWords{
-                    let wordArray = (data["\(word)"] as! [String])
+                    let wordObject = (data["\(word)"] as! NSDictionary)
+                    let wordArray = (wordObject["WordList"] as! [String])
                     self.words.append(contentsOf: wordArray)
                 }
                 print(self.words)
@@ -160,14 +277,16 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
                     self.getRandomWord.append(self.words[getRandom()-1])
                     if n == 3{
                         self.tableView.reloadData()
-                        
+                        let range = NSMakeRange(0, self.tableView.numberOfSections)
+                        let sections = NSIndexSet(indexesIn: range)
+                        self.tableView.reloadSections(sections as IndexSet, with: .automatic)
                     }
                 }
-            })
+            
             
         })
     }
-    func barButtonItemClicked(){
+    @objc func barButtonItemClicked(){
         print("clicked")
     }
     override func didReceiveMemoryWarning() {
@@ -181,12 +300,19 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
             withIdentifier: "WordSelect", for: indexPath)
-        cell.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
-        cell.layer.borderWidth = 3
+        cell.layer.borderColor = UIColorFromRGB(rgbValue: 0xffffff).cgColor
+        cell.layer.borderWidth = 6
         let label = cell.viewWithTag(1000) as! UILabel
+
+        label.text = getRandomWord[indexPath.row]
         
-        
-            label.text = getRandomWord[indexPath.row]
+        let borderBox = UIView(frame: cell.bounds)
+        borderBox.layer.borderColor = UIColorFromRGB(rgbValue: 0xe5e5e5).cgColor
+        borderBox.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        borderBox.layer.borderWidth = 7
+
+        cell.addSubview(borderBox)
+
         
         
         return cell
@@ -198,13 +324,13 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
         let label = cell.viewWithTag(1000) as! UILabel
         
             if teamID != nil{
-                if let user  = FIRAuth.auth()?.currentUser{
+                if let user  = Auth.auth().currentUser{
                     var name: String?
                     name = user.displayName!
                     
                         let userID: String = user.uid
                         let word: String = label.text!
-                        let interval = FIRServerValue.timestamp()
+                        let interval = ServerValue.timestamp()
                         gameID = ref.child("Games").childByAutoId().key
                         print(gameID)
                         let post = ["team": teamID!,
@@ -219,14 +345,14 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
                     
                         self.ref.child("Teams").child(teamID!).child("games").child("\(gameID!)").setValue(true)
                     
-                        self.ref.child("Teams").child(teamID!).child("users").child("\(userID)").setValue(["activeGame" : true])
+                        self.ref.child("Teams").child(teamID!).child("/teamInfo/users").child("\(userID)").setValue(["activeGame" : true])
                     
                
                             self.ref.child("Games/\(gameID!)/secondLast").setValue("")
                     
                             self.ref.child("Games/\(gameID!)/lastPlayer").setValue(userID)
                      
-
+                   
                 
                 
                 }

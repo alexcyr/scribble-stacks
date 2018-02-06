@@ -16,7 +16,8 @@ import AVFoundation
 
 
 protocol ButtonCellDelegate {
-    func cellTapped(cell: ButtonCell)
+    func cellTapped(cell: ButtonCell, type: String)
+    func cellTapped0(cell: ButtonCell, type: String)
 }
 
 
@@ -33,24 +34,24 @@ class ButtonCell: UITableViewCell {
     
     @IBAction func buttonTap0(_ sender: AnyObject) {
         if let delegate = buttonDelegate {
-            delegate.cellTapped(cell: self)
+            delegate.cellTapped0(cell: self, type: "caption")
         }
     }
     @IBAction func buttonTap(_ sender: AnyObject) {
     
         if let delegate = buttonDelegate {
-            delegate.cellTapped(cell: self)
+            delegate.cellTapped(cell: self, type: "caption")
         }
     }
     
     @IBAction func imageButtonTap(_ sender: AnyObject) {
         if let delegate = buttonDelegate {
-            delegate.cellTapped(cell: self)
+            delegate.cellTapped(cell: self, type: "image")
         }
     }
     @IBAction func imageButtonTap0(_ sender: AnyObject) {
         if let delegate = buttonDelegate {
-            delegate.cellTapped(cell: self)
+            delegate.cellTapped0(cell: self, type: "image")
         }
     }
     
@@ -303,7 +304,7 @@ extension UITableView {
 extension UIImage {
     
     convenience init(view: UIView) {
-        UIGraphicsBeginImageContextWithOptions(view.frame.size, false, 0.0)
+        UIGraphicsBeginImageContext(view.frame.size)
         view.layer.render(in: UIGraphicsGetCurrentContext()!)
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
@@ -311,7 +312,7 @@ extension UIImage {
     }
     
     class func imageWithColor(color:UIColor, size:CGSize) -> UIImage? {
-        UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+        UIGraphicsBeginImageContext(size)
         let context = UIGraphicsGetCurrentContext()
         if context == nil {
             return nil
@@ -353,6 +354,25 @@ extension UIImage {
 }
 
 extension UIView {
+   
+    func asImage() -> UIImage? {
+        if #available(iOS 10.0, *) {
+            let renderer = UIGraphicsImageRenderer(bounds: bounds)
+            return renderer.image { rendererContext in
+                layer.render(in: rendererContext.cgContext)
+            }
+        } else {
+            UIGraphicsBeginImageContextWithOptions(self.bounds.size, self.isOpaque, 0.0)
+            defer { UIGraphicsEndImageContext() }
+            guard let currentContext = UIGraphicsGetCurrentContext() else {
+                return nil
+            }
+            self.layer.render(in: currentContext)
+            return UIGraphicsGetImageFromCurrentImageContext()
+        }
+    }
+
+    
     func screenshotForCroppingRect(croppingRect:CGRect) -> UIImage? {
         
         UIGraphicsBeginImageContextWithOptions(croppingRect.size, false, 0.0);
@@ -371,7 +391,7 @@ extension UIView {
         return screenshotImage
     }
     
-    var screenshot : UIImage? {
+    @objc var screenshot : UIImage? {
         return self.screenshotForCroppingRect(croppingRect: self.bounds)
     }
 }
@@ -380,7 +400,7 @@ extension UIView {
 
 class EndGameViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, ButtonCellDelegate {
     
-    var ref: FIRDatabaseReference?
+    var ref: DatabaseReference?
     
     @IBOutlet weak var tableView: UITableView!
     var turnsArray = [Any?]()
@@ -392,16 +412,20 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
     var base64String: NSString!
     var decodedImage: UIImage!
     var navScreenshot: UIImage!
+    var colorBar: UIImage!
     var voted = false
     var ended = false
     var tableLoaded = false
+    
+    let screenWidth = UIScreen.main.bounds.width
+    let screenHeight = UIScreen.main.bounds.height
     
     var images: [UIImage] = []
     var userIDs: [String] = []
     var usernames: [String] = []
     var turnIDs: [String] = []
     
-  
+  /*
     @IBOutlet weak var startButtonOutlet: SpringButton!
     
     @IBAction func startButton(_ sender: AnyObject) {
@@ -414,9 +438,8 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         viewWithTag!.removeFromSuperview()
 
     }
-    
-    
-    func cellTapped(cell: ButtonCell) {
+    */
+    func cellTapped0(cell: ButtonCell, type: String) {
         let cellRow = tableView.indexPath(for: cell)!.row
         let turnID = turnIDs[cellRow]
         let turn = turnsArray[cellRow] as! NSObject
@@ -424,19 +447,115 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         var votes = turn.value(forKey: "votes") as! Int
         print(votes)
         print(turnID)
-        votes = votes + 1
-        print(votes)
-        self.ref?.child("Games/\(self.gameID!)/turns/\(turnID)/votes").setValue(votes)
-        
-         ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
-            let data = snapshot.value as? NSDictionary
-            var currency = data?["currency"] as! Int
-            currency = currency + 1
-            
-            self.ref?.child("Users/\(userID)/currency").setValue(currency)
+        if(type == "caption"){
+            if (cell.captionButtonOutlet0.currentTitle == "▽"){
+                
+                cell.captionButtonOutlet0.setTitle("▼", for: .normal)
+                if(cell.captionButtonOutlet1.currentTitle == "▲"){
+                    cell.captionButtonOutlet1.setTitle("△", for: .normal)
+                    votes = votes - 1
+                    minusCurrency(userID: userID)
 
-        })
+                    
+                }
+                votes = votes - 1
+
+                minusVotes(turnID: turnID, userID: userID, gameID: self.gameID!, votes: votes)
+                
+            }
+            else{
+                cell.captionButtonOutlet0.setTitle("▽", for: .normal)
+                votes = votes + 1
+
+                addVotes(turnID: turnID, userID: userID, gameID: self.gameID!, votes: votes)
+            }
+        }
+        if(type == "image"){
+            if (cell.imageButtonOutlet0.currentTitle == "▽"){
+                cell.imageButtonOutlet0.setTitle("▼", for: .normal)
+                if(cell.imageButtonOutlet1.currentTitle == "▲"){
+                    cell.imageButtonOutlet1.setTitle("△", for: .normal)
+                    minusCurrency(userID: userID)
+
+                    votes = votes - 1
+                }
+                votes = votes - 1
+                minusVotes(turnID: turnID, userID: userID, gameID: self.gameID!, votes: votes)
+                
+            }
+            else{
+                cell.imageButtonOutlet0.setTitle("▽", for: .normal)
+                votes = votes + 1
+                addVotes(turnID: turnID, userID: userID, gameID: self.gameID!, votes: votes)
+            }
+        }
+        turn.setValue(votes, forKey: "votes")
         
+        turnsArray[cellRow] = turn
+        
+        
+        
+        voted = true
+        
+        tableView.reloadData()
+        
+    }
+    
+    
+    func cellTapped(cell: ButtonCell, type: String) {
+        let cellRow = tableView.indexPath(for: cell)!.row
+        let turnID = turnIDs[cellRow]
+        let turn = turnsArray[cellRow] as! NSObject
+        let userID = turn.value(forKey: "user") as? String ?? ""
+        var votes = turn.value(forKey: "votes") as! Int
+        print(votes)
+        print(turnID)
+        if(type == "caption"){
+            if (cell.captionButtonOutlet1.currentTitle == "△"){
+                cell.captionButtonOutlet1.setTitle("▲", for: .normal)
+                if(cell.captionButtonOutlet0.currentTitle == "▼"){
+                    cell.captionButtonOutlet0.setTitle("▽", for: .normal)
+                    votes = votes + 1
+
+                }
+                votes = votes + 1
+                addVotes(turnID: turnID, userID: userID, gameID: self.gameID!, votes: votes)
+                addCurrency(userID: userID)
+                
+            }
+            else{
+                cell.captionButtonOutlet1.setTitle("△", for: .normal)
+                votes = votes - 1
+                minusCurrency(userID: userID)
+                minusVotes(turnID: turnID, userID: userID, gameID: self.gameID!, votes: votes)
+            }
+        }
+        if(type == "image"){
+            if (cell.imageButtonOutlet1.currentTitle == "△"){
+                cell.imageButtonOutlet1.setTitle("▲", for: .normal)
+                if(cell.imageButtonOutlet0.currentTitle == "▼"){
+                    cell.imageButtonOutlet0.setTitle("▽", for: .normal)
+                    votes = votes + 1
+                    
+                }
+                votes = votes + 1
+                addCurrency(userID: userID)
+                addVotes(turnID: turnID, userID: userID, gameID: self.gameID!, votes: votes)
+                
+            }
+            else{
+                cell.imageButtonOutlet1.setTitle("△", for: .normal)
+                votes = votes - 1
+                minusCurrency(userID: userID)
+                minusVotes(turnID: turnID, userID: userID, gameID: self.gameID!, votes: votes)
+            }
+            
+            
+        }
+        
+        
+        //Determine Most Votes Winner
+        /*
         if ended == true{
             var count = 0
             var highVote = 0
@@ -467,9 +586,48 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 self.ref?.child("Games/\(self.gameID!)/winner").childByAutoId().setValue(["user": userID!, "username": name!, "seen": false])
             }
         }
+ */
+        turn.setValue(votes, forKey: "votes")
+       
+            turnsArray[cellRow] = turn
+            
+       
         
         voted = true
+
         tableView.reloadData()
+
+    }
+    func addVotes(turnID: String, userID: String, gameID: String, votes: Int){
+        
+        self.ref?.child("Games/\(gameID)/turns/\(turnID)/votes").setValue(votes)
+        
+        
+    }
+    func minusVotes(turnID: String, userID: String, gameID: String, votes: Int){
+        
+        self.ref?.child("Games/\(gameID)/turns/\(turnID)/votes").setValue(votes)
+        
+    }
+    func addCurrency(userID: String){
+        ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
+            let data = snapshot.value as? NSDictionary
+            var currency = data?["currency"] as! Int
+            currency = currency + 1
+            
+            self.ref?.child("Users/\(userID)/currency").setValue(currency)
+            
+        })
+    }
+    func minusCurrency(userID: String){
+        ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
+            let data = snapshot.value as? NSDictionary
+            var currency = data?["currency"] as! Int
+            currency = currency - 1
+            
+            self.ref?.child("Users/\(userID)/currency").setValue(currency)
+            
+        })
     }
     
     
@@ -490,9 +648,9 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
     
     
     @IBAction func continuePlaying(_ sender: AnyObject) {
-        if teamID != nil{
+        
             performSegue(withIdentifier: "EndToBuffer", sender: self)
-        }
+        
         
     }
     @IBAction func saveButton(_ sender: AnyObject) {
@@ -506,9 +664,9 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         cameraButton.isHidden = true
         
         var image = self.tableView.screenshotExcludingHeadersAtSections(excludedHeaderSections: nil, excludingFootersAtSections:nil, excludingRowsAtIndexPaths: [IndexPath(row:0, section: 1), NSIndexPath(row:8, section: 1 )])
-        let imageArray = [navScreenshot, image]
+        let imageArray = [navScreenshot, colorBar, image]
         image = UIImage.verticalImageFromArray(imagesArray:imageArray as! [UIImage])
-        UIImageWriteToSavedPhotosAlbum(image!,nil,nil,nil)
+        //UIImageWriteToSavedPhotosAlbum(image!,nil,nil,nil)
         
         
 
@@ -544,6 +702,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         
         
     }
+    /*
     func createStartView(){
         if !UIAccessibilityIsReduceTransparencyEnabled() {
             self.view.backgroundColor = UIColor.clear
@@ -561,12 +720,16 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
             self.view.backgroundColor = UIColor.white
         }
     }
+ */
+ 
     override func viewDidLoad() {
         super.viewDidLoad()
-        createStartView()
+        //createStartView()
         
-        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
-        self.tableView.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
+        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+        self.tableView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
+        self.tableView.rowHeight = UITableViewAutomaticDimension
         
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         
@@ -574,12 +737,12 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         navigationItem.leftBarButtonItem = nil
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
         imageView.contentMode = .scaleAspectFit
-        let image = UIImage(named: "scribble-logo.png")
+        let image = UIImage(named: "scribble-logo-light.png")
         imageView.image = image
         navigationItem.titleView = imageView
         
         // Do any additional setup after loading the view, typically from a nib.
-        ref = FIRDatabase.database().reference()
+        ref = Database.database().reference()
         
         let group1 = DispatchGroup()
         
@@ -589,7 +752,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         
         if (gameID != nil){
             print(gameID!)
-            
+            /*
                 if self.voted == false {
                     self.startButtonOutlet.setTitle("Vote For Your Favorite\nTap Anywhere to View Results", for: .normal)
                     
@@ -600,7 +763,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                    
 
                 }
-            
+            */
             
             ref?.child("Games/\(gameID!)/turns").queryOrderedByKey().observe(.childAdded, with: { (snapshot) in
                
@@ -618,11 +781,11 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 if n == 8{
                     print(n)
                     print("poopturds")
-                    
-                    
                     self.turnCount = self.turnsArray.count
                     self.gameCount = (self.turnsArray.count)
-                    self.tableView.reloadData()
+                    let range = NSMakeRange(0, self.tableView.numberOfSections)
+                    let sections = NSIndexSet(indexesIn: range)
+                    self.tableView.reloadSections(sections as IndexSet, with: .automatic)
 
                 }
                 
@@ -630,7 +793,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 print(error.localizedDescription)
             }
             
-            if let user  = FIRAuth.auth()?.currentUser{
+            if let user  = Auth.auth().currentUser{
                 
                 
                 let userID: String = user.uid
@@ -647,19 +810,21 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                         if userViewCount <= 1
                         {
                             self.ref?.child("Games/\(self.gameID!)/status").setValue("didFinish")
-                            
+                            self.ref?.child("Teams/\(self.teamID!)/games/\(self.gameID!)").setValue(false)
+
                             self.ended = true
                         }
+                        self.ref?.child("Games/\(self.gameID!)/users/\(userID)").setValue(false)
                     })
                     
-                    self.ref?.child("Games/\(self.gameID!)/users/\(userID)").setValue(false)
+                    
                     
                     let initialUser = turnID.value(forKey: "user") as? String ?? ""
                     print(initialUser)
                     print("potato pancakes")
                     if userID == initialUser{
                         print("banana pancakes")
-                        self.ref?.child("Teams/\(self.teamID!)/users/\(userID)/activeGame").setValue(false)
+                        self.ref?.child("Teams/\(self.teamID!)/teamInfo/users/\(userID)/activeGame").setValue(false)
                         
                     }
                     
@@ -691,9 +856,10 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         if let view1 = self.navigationController?.navigationBar {
-            navScreenshot = UIImage(view: view1)
+            navScreenshot = view1.asImage()
         }
-       
+        let view2 = view.viewWithTag(8)!
+        colorBar = view2.asImage()
 
 
     }
@@ -705,38 +871,85 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         
         return (gameCount+1)
     }
-        func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
         let n = indexPath.row
         
             if(indexPath.row != (gameCount)){
-                if(n%2 == 0){
-                    return 80.0
-                }
-                else{
+               
+               
                     if(gameID != nil){
-                        return 350.0
+                        if(n%2 == 0){
+                            
+                            return 98.0
+                        }
+                        else{
+                        return (screenWidth + 50.0)
+                        }
                     }
                     else{
-                        return 308.0
+                        if(n%2 == 0){
+                            
+                            return 80.0
+                        }
+                        else{
+                            return (screenWidth)
+                        }
                     }
-                }
+                
             }
             else{
                 return 60.0
             }
        
     }
+ 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let n = indexPath.row
-        
-        
-        
-        
+
         if(indexPath.row != (gameCount)){
-            
-            if(n%2 == 0){
+            if (n == 0){
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: "StartingWord", for: indexPath) as! ButtonCell
+                
+                if cell.buttonDelegate == nil {
+                    cell.buttonDelegate = self
+                }
+                
+               
+                
+                let label = cell.viewWithTag(500) as! UILabel
+                var word: String?
+                
+                if (gameID != nil){
+                    let wordTurn = self.turnsArray[n] as! NSObject
+                    print(wordTurn)
+                    
+                    
+                    
+                    word = wordTurn.value(forKey: "content")! as? String
+                    label.text = word!
+                    print(word!)
+                    
+                    
+                }
+                else{
+                    
+                    let caption = game.captions[(n/2)]
+                    word = caption.phrase
+                    
+                    label.text = word
+                    
+                    
+                }
+                cell.selectionStyle = UITableViewCellSelectionStyle.none
+                return cell
+                
+                
+            }
+            else if(n%2 == 0){
                 let cell = tableView.dequeueReusableCell(
                     withIdentifier: "CaptionView", for: indexPath) as! ButtonCell
                 
@@ -745,18 +958,19 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 }
                 
                 //cell style
+                cell.layer.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff).cgColor
                 cell.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
-                cell.layer.borderWidth = 4
+                cell.layer.borderWidth = 4.0
                 
                 let label = cell.viewWithTag(500) as! UILabel
                 let userLabel1 = view.viewWithTag(9) as! UILabel
                 var word: String?
                 
                 
-                
+                let votesLabel1 = view.viewWithTag(911) as! UILabel
+
                 if (gameID != nil){
                     let wordTurn = self.turnsArray[n] as! NSObject
-                    let votesLabel1 = view.viewWithTag(911) as! UILabel
                     print(wordTurn)
                     
 
@@ -768,16 +982,8 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     userLabel1.text = wordTurn.value(forKey: "username")! as? String
                     let votes = wordTurn.value(forKey: "votes")! as? Int
                     
-                    
-                    if votes == 0{
-                        votesLabel1.text = ""
-                    }
-                    if votes != 0{
-                        print(votes)
-                        votesLabel1.text = "+\(votes!)💩"
+                    votesLabel1.text = "\(votes!)"
                 
-                    }
-                    
                     if n == 0 {
                         cell.captionButtonOutlet1.isHidden = true
                         votesLabel1.isHidden = true
@@ -785,12 +991,14 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     }
                     if n != 0 {
                         cell.captionButtonOutlet1.isHidden = false
-                        votesLabel1.isHidden = true
+                        votesLabel1.isHidden = false
                         
                     }
                     
-                    userLabel1.isHidden = true
-                    userLabel1.alpha = 0
+                    
+                    
+                    //Hide Buttons if Voted
+                    /*
                     if voted == true{
                        
                         userLabel1.isHidden = false
@@ -812,7 +1020,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                             cell.captionButtonOutlet1.alpha = 0
                         }
                     }
-
+*/
                     
                 }
                 else{
@@ -822,6 +1030,9 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     
                     label.text = word
                     cell.captionButtonOutlet1.isHidden = true
+                    cell.captionButtonOutlet0.isHidden = true
+                    votesLabel1.isHidden = true
+
                     
                     
                 }
@@ -837,8 +1048,10 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 }
                 
                 //cell style
+                cell.layer.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff).cgColor
                 cell.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
-                cell.layer.borderWidth = 4
+                cell.layer.borderWidth = 4.0
+
                 
                 let tempImage = self.view.viewWithTag(501) as! UIImageView
                 tempImage.backgroundColor = UIColor.white
@@ -846,9 +1059,10 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 let userLabel2 = view.viewWithTag(10) as! UILabel
                 var gameImage: UIImage?
                 
+                let votesLabel2 = view.viewWithTag(912) as! UILabel
+
                 if (gameID != nil){
                     let imageTurn = self.turnsArray[n] as! NSObject
-                    let votesLabel2 = view.viewWithTag(912) as! UILabel
 
                     
                     self.base64String = imageTurn.value(forKey: "content")! as! NSString
@@ -862,21 +1076,17 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     tempImage.image = gameImage!
                     
                     userLabel2.text = imageTurn.value(forKey: "username")! as! String
-                    userLabel2.isHidden = true
-                     userLabel2.alpha = 0
+                
                     
                     let votes = imageTurn.value(forKey: "votes")! as? Int
                     
                     
-                    if votes == 0{
-                        votesLabel2.text = ""
-                    }
-                    if votes != 0{
-                        votesLabel2.text = "+\(votes!)💩"
+                        votesLabel2.text = "\(votes!)"
                         
-                    }
                     
                     
+                    // Hide Button if Voted
+                    /*
                     if voted == true{
                         userLabel2.isHidden = false
                         cell.imageButtonOutlet1.isHidden = true
@@ -895,6 +1105,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                             cell.imageButtonOutlet1.isHidden = true
                         }
                     }
+  */
        
                 }
                 else{
@@ -903,13 +1114,19 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     gameImage = images[((n-1)/2)]
                     
                     let tempImage = self.view.viewWithTag(501) as! UIImageView
+                    let dividerLine = self.view.viewWithTag(44)!
+                    dividerLine.isHidden = true
+                    let dividerLine2 = self.view.viewWithTag(45)!
+                    dividerLine2.isHidden = true
                     tempImage.backgroundColor = UIColor.white
                     tempImage.image = gameImage
                     cell.imageButtonOutlet1.isHidden = true
-
+                    cell.imageButtonOutlet0.isHidden = true
+                    votesLabel2.isHidden = true
                     
                     
                 }
+
                 cell.selectionStyle = UITableViewCellSelectionStyle.none
 
                 return cell
@@ -930,41 +1147,35 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
             let continueLabel = self.view.viewWithTag(503) as! UIButton
             continueLabel.setTitle("Continue", for: .normal)
             cell2.selectionStyle = UITableViewCellSelectionStyle.none
-            cell2.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
-            cell2.layer.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
-            cell2.layer.borderWidth = 4
+            //cell2.layer.borderColor = UIColorFromRGB(rgbValue: 0xffffff).cgColor
+            cell2.layer.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff).cgColor
+            //cell2.layer.borderWidth = 4
             
             let playButton = self.view.viewWithTag(503) as! UIButton
             let quitButton = self.view.viewWithTag(504) as! UIButton
             let cameraButton = self.view.viewWithTag(505) as! UIButton
             
-            playButton.isEnabled = false
-            quitButton.isEnabled = false
-            cameraButton.isEnabled = false
-            
-            if voted == true{
-                
                 
                 playButton.isEnabled = true
                 quitButton.isEnabled = true
                 cameraButton.isEnabled = true
 
-            }
+            
             return cell2
         }
         
         
     }
     
+    
     func tableView(_ tableView: UITableView, layoutSubviews indexPath: IndexPath){
         
     }
+    
     func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         
         let n = indexPath.row
-        
-        
-        
+
         
         if(indexPath.row != (gameCount)){
             

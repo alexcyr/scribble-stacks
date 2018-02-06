@@ -14,14 +14,15 @@ import FirebaseAuth
 import FirebaseDynamicLinks
 
 
-class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDelegate, FIRInviteDelegate, UINavigationControllerDelegate {
+class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDelegate, InviteDelegate, UINavigationControllerDelegate {
    
     var teamID: String?
+    var teamName: String?
     var customUrl = ""
     var encodedURL = ""
     @IBOutlet weak var inviteButton: UIButton!
-    @IBOutlet weak var teamName: UITextField!
     @IBOutlet weak var textLabel: UILabel!
+    @IBOutlet weak var startOutlet: UIButton!
   
     @IBOutlet weak var statusText: UILabel!
     
@@ -59,8 +60,8 @@ class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDele
     }
     
     @IBAction func inviteButton(_ sender: AnyObject) {
-    
-        if let invite = FIRInvites.inviteDialog() {
+    statusText.text = "To start game you must invite at least one person."
+        if let invite = Invites.inviteDialog() {
             invite.setInviteDelegate(self)
             
             // NOTE: You must have the App Store ID set in your developer console project
@@ -68,22 +69,24 @@ class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDele
             
             // A message hint for the dialog. Note this manifests differently depending on the
             // received invation type. For example, in an email invite this appears as the subject.
-            invite.setMessage("Try this out!\n -\(GIDSignIn.sharedInstance().currentUser.profile.name!)")
+            invite.setMessage("You've been invited to join team \(self.teamName!) in Scribble Stacks!")
             // Title for the dialog, this is what the user sees before sending the invites.
             invite.setTitle("Invite Friends")
             invite.setDeepLink("\(encodedURL)")
             invite.setCallToActionText("Install!")
-            invite.setCustomImage("https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png")
+            invite.setCustomImage("scribble-logo-light.png")
             invite.open()
         }
        
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
+        //self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
 
         navigationController?.delegate = self
-        
+        startOutlet.isEnabled = true
+        startOutlet.layer.backgroundColor = UIColorFromRGB(rgbValue: 0xe5e5e5).cgColor
+
         customUrl = "http://scribblestack.com/teamID=\(teamID!)"
         encodedURL = customUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         print(encodedURL)
@@ -114,6 +117,15 @@ class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDele
         if let error = error {
             print("Failed: " + error.localizedDescription)
         } else {
+            let inviteCount = invitationIds.count
+            if inviteCount > 0 {
+                startOutlet.isEnabled = true
+                startOutlet.layer.backgroundColor = UIColorFromRGB(rgbValue: 0xCE3651).cgColor
+
+                statusText.text = "\(inviteCount) friends invited. Click 'Start Game' to begin!"
+                
+
+            }
             print("Invitations sent")
         }
     }

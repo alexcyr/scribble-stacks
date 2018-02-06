@@ -9,6 +9,7 @@
 import UIKit
 import FirebaseAuth
 import FirebaseDatabase
+import NVActivityIndicatorView
 
 extension UIImage {
     class func imageWithLabel(label: UILabel) -> UIImage {
@@ -24,18 +25,24 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var drawing: UIImageView!
     var game: Game!
-    var ref: FIRDatabaseReference?
-    var dataHandler: FIRDatabaseHandle?
+    var ref: DatabaseReference?
+    var dataHandler: DatabaseHandle?
     var turnsArray = [Any?]()
     var isSwiping: Bool!
     var gameID: String?
     var teamID: String!
+    var typing = true
     var word: Caption!
     var counter = 30
     var base64String: NSString!
     var decodedImage: UIImage!
     var didStart = false
+    var finishedWord = false
     
+    @IBOutlet weak var successLabel2: UILabel!
+    @IBOutlet weak var successLabel1: UILabel!
+    @IBOutlet weak var activityIndicator: NVActivityIndicatorView!
+   
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var goButton: UIButton!
     @IBOutlet weak var startButtonOutlet: SpringButton!
@@ -46,6 +53,16 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
          performSegue(withIdentifier: "BufferScreen", sender: self)
     }
     
+    @IBAction func keyboardButton(_ sender: AnyObject) {
+        if typing {
+        captionField.resignFirstResponder()
+            typing = false
+        }
+        else{
+            captionField.becomeFirstResponder()
+            typing = true
+        }
+    }
     @IBAction func startButton(_ sender: AnyObject) {
         didStart = true
         let layerButton = self.view.viewWithTag(10) as! SpringButton
@@ -56,6 +73,8 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
         
         let viewWithTag = self.view.viewWithTag(555)
         viewWithTag!.removeFromSuperview()
+        let view1 = self.view.viewWithTag(768)
+        view1!.removeFromSuperview()
         
         captionField.isEnabled = true
         captionField.becomeFirstResponder()
@@ -181,6 +200,7 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        createStartView()
         let layer2 = self.view.viewWithTag(12) as! SpringView
         let layer3 = self.view.viewWithTag(2222)
         self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
@@ -190,9 +210,11 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
         
         layer3?.isUserInteractionEnabled = true
         layer2.isHidden = true
-        ref = FIRDatabase.database().reference()
+        ref = Database.database().reference()
 
-        createStartView()
+        let burst = self.view.viewWithTag(88) as! UIImageView
+        rotateView(targetView: burst, duration: 20.0)
+        
         
         // Do any additional setup after loading the view, typically from a nib.
         if (gameID != nil){
@@ -227,7 +249,7 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
             }){ (error) in
                 print(error.localizedDescription)
             }
-            if let user  = FIRAuth.auth()?.currentUser{
+            if let user  = Auth.auth().currentUser{
                 
                 let userID: String = user.uid
                 ref?.child("Games/\(gameID!)").observeSingleEvent(of: .value, with: { (snapshot) in
@@ -255,7 +277,9 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(true, animated: animated)
         super.viewWillAppear(animated)
-    }
+            }
+    
+    
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
@@ -263,7 +287,7 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
        
         
         didStart = false
-        
+        finishedWord = true
         
         let layer = self.view.viewWithTag(11) as! SpringView
         layer.animation = "fall"
@@ -283,19 +307,25 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
         drawingLayer.clipsToBounds = true
         
         
+        let shadow = self.view.viewWithTag(2024)!
+        shadow.layer.masksToBounds = true
+        shadow.layer.cornerRadius = shadow.frame.size.width/2
+        shadow.clipsToBounds = true
+
+        
         let drawingLayerImage = self.view.viewWithTag(2026) as! UILabel
         drawingLayerImage.text = captionField.text! as String
         
         drawingLayer.animation = "zoomIn"
         drawingLayer.force = 1.0
         drawingLayer.animate()
-        
+        /*
         drawingLayer.animation = "flipX"
         drawingLayer.repeatCount = Float.infinity
         drawingLayer.duration = 6.0
         drawingLayer.curve = "easeInOut"
         drawingLayer.animate()
-        
+        */
         let coin1 = self.view.viewWithTag(31) as! SpringImageView
         
         coin1.animation = "zoomIn"
@@ -338,7 +368,9 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
         coin3.curve = "easeInOut"
         coin3.animate()
         
-        
+        var earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+        earnedCoins += 3
+        UserDefaults.standard.setValue(earnedCoins, forKey: "earnedCoins")
         
         let verticalMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.y",
                                                                type: .tiltAlongVerticalAxis)
@@ -366,24 +398,42 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
         layer2.force = 0.5
         layer2.animate()
         
+     
+       
+        
+        // Create group to combine both
+       
+        // Add both effects to your view
+        drawingLayer.addMotionEffect(group)
+        successLabel1.addMotionEffect(group)
+        
+        
+        
+       
+            
+           
+        
         if gameID != nil{
-            statusLabel.text = "Sending to stack"
+            statusLabel.text = "Sending to stack..."
+             activityIndicator.startAnimating()
             goButton.isHidden = true
+            didStart = true
+            counter = 4
             
             
-            if let user  = FIRAuth.auth()?.currentUser{
+            if let user  = Auth.auth().currentUser{
                 var name: String?
                 name = user.displayName!
                 
                 let label = captionField.text! as String
                 
                 let userID: String = user.uid
-                let interval = FIRServerValue.timestamp()
+                let interval = ServerValue.timestamp()
                 self.ref?.child("Games/\(gameID!)/users").child("\(userID)").setValue(true)
                 self.ref?.child("Games/\(gameID!)/turns").childByAutoId().setValue(["content": label, "user": userID,"username": name!, "time": interval, "votes": 0])
                 self.ref?.child("Games/\(gameID!)/time").setValue(interval)
                 self.ref?.child("Games/\(gameID!)/status").setValue("inplay")
-                self.ref?.child("Teams/\(teamID!)/time").setValue(interval)
+                self.ref?.child("Teams/\(teamID!)/teamInfo/time").setValue(interval)
                 if (teamID!) == "000000"{
                     self.ref?.child("Users/\(userID)/Public/\(gameID!)").setValue(true)
                     
@@ -423,34 +473,70 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     }
     
     
-    
-    
-    
-    func createStartView(){
-        if !UIAccessibilityIsReduceTransparencyEnabled() {
-            self.view.backgroundColor = UIColor.clear
-            
-            let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
-            let blurEffectView = UIVisualEffectView(effect: blurEffect)
-            //always fill the view
-            blurEffectView.tag = 555
-            blurEffectView.frame = self.view.bounds
-            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            
-            self.view.viewWithTag(11)!.addSubview(blurEffectView) //if you have more UIViews, use an insertSubview API to place it where needed
-        }
-        else {
-            self.view.backgroundColor = UIColor.white
+    private func rotateView(targetView: UIImageView, duration: Double) {
+        UIImageView.animate(withDuration: duration, delay: 0.0, options: .curveLinear, animations: {
+            targetView.transform = targetView.transform.rotated(by: CGFloat(M_PI))
+        }) { finished in
+            self.rotateView(targetView: targetView, duration: duration)
         }
     }
     
-    func updateCounter() {
+    func createStartView(){
+        let viewA = self.view.viewWithTag(768)!
+
+        if !UIAccessibilityIsReduceTransparencyEnabled() {
+            
+            viewA.backgroundColor = UIColor.clear
+            
+            let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
+            let blurEffectView = UIVisualEffectView(effect: blurEffect)
+            blurEffectView.alpha = 1
+            //always fill the view
+            blurEffectView.tag = 555
+            blurEffectView.frame = viewA.bounds
+            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            viewA.addSubview(blurEffectView)
+            
+        }
+        else {
+            viewA.backgroundColor = UIColor.white
+        }
+        let view1 = self.view.viewWithTag(758)!
+        var view2 = view1
+        view1.removeFromSuperview()
+        
+        view2.tag = 758
+        viewA.addSubview(view2)
+        view2 = self.view.viewWithTag(758)!
+        UIView.animate(withDuration: 1.0, delay: 0, options: [.repeat, .autoreverse], animations: {
+            
+            view2.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+            
+            }, completion: nil)//if you have more UIViews, use an insertSubview API to place it where needed
+        view2.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
+        view2.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
+        
+        view2.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        view2.heightAnchor.constraint(equalToConstant: 300).isActive = true
+
+        
+        
+    }
+    
+    
+    @objc func updateCounter() {
         if didStart && counter > 0 {
             counter -= 1
             countDownLabel.text = String(counter)
         }
-        if didStart && counter == 0{
+        if didStart == true && counter == 0{
+            if finishedWord == false{
          captionDone()
+            }
+            else{
+                didStart = false
+                 performSegue(withIdentifier: "BufferScreen", sender: self)
+            }
             
         }
     }

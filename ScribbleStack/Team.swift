@@ -13,14 +13,16 @@ class Team: NSObject{
     var teamName: String
     var gameCount: Int
     var userCount: Int
+    var users: [String]
     var time: String
     
-    init(id: String, teamName: String, gameCount: Int, userCount: Int, time: String){
+    init(id: String, teamName: String, gameCount: Int, userCount: Int, time: String, users: [String]){
         self.id = id
         self.teamName = teamName
         self.gameCount = gameCount
         self.userCount = userCount
         self.time = time
+        self.users = users
         super.init()
     }
 }

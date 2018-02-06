@@ -11,12 +11,24 @@ import FirebaseAuth
 import FirebaseDatabase
 import NVActivityIndicatorView
 
+extension UIImageView{
+    func rotate() {
+        let rotation : CABasicAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
+        rotation.toValue = NSNumber(value: M_PI * 2)
+        rotation.duration = 1
+        rotation.isCumulative = true
+        rotation.repeatCount = FLT_MAX
+        self.layer.add(rotation, forKey: "rotationAnimation")
+    }
+}
+
 class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
     
-    @IBOutlet weak var startButtonOutlet: UIButton!
+    @IBOutlet weak var startButtonOutlet: SpringButton!
     @IBOutlet weak var countDownLabel: UILabel!
-    var ref: FIRDatabaseReference?
-    var dataHandler: FIRDatabaseHandle?
+    @IBOutlet weak var colorButtonOutlet: UIButton!
+    var ref: DatabaseReference?
+    var dataHandler: DatabaseHandle?
     var turnsArray = [Any?]()
     var isSwiping: Bool!
     var game: Game!
@@ -30,7 +42,32 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
     var didStart = false
     var lastPoint: CGPoint!
     var lineWidth: CGFloat = 5.0
+    var imgStore: [UIImage] = []
+    var strokeCount = 0
+    var red: CGFloat = 0.0
+    var green: CGFloat = 0.0
+    var blue: CGFloat = 0.0
+    var opacity: CGFloat = 1.0
+    var blankImage: UIImage?
     
+    let colors: [(CGFloat, CGFloat, CGFloat)] = [
+        (0, 0, 0),
+        (105.0 / 255.0, 105.0 / 255.0, 105.0 / 255.0),
+        (1.0, 0, 0),
+        (0, 0, 1.0),
+        (51.0 / 255.0, 204.0 / 255.0, 1.0),
+        (102.0 / 255.0, 204.0 / 255.0, 0),
+        (102.0 / 255.0, 1.0, 0),
+        (160.0 / 255.0, 82.0 / 255.0, 45.0 / 255.0),
+        (1.0, 102.0 / 255.0, 0),
+        (1.0, 1.0, 0),
+        (1.0, 1.0, 1.0),
+        ]
+
+    
+    @IBOutlet weak var successLabel2: UILabel!
+    @IBOutlet weak var successLabel1: UILabel!
+    @IBOutlet weak var colorsOutlet: SpringView!
     @IBOutlet weak var widthButtonsView: UIView!
     @IBOutlet weak var widthOutlet: UIButton!
     @IBOutlet weak var activityIndicator: NVActivityIndicatorView!
@@ -46,17 +83,17 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
         hideWidthButton()
     }
     @IBAction func width2(_ sender: AnyObject) {
-        lineWidth = 5.0
+        lineWidth = 7.0
         hideWidthButton()
     }
     
     @IBAction func width3(_ sender: AnyObject) {
-        lineWidth = 8.0
+        lineWidth = 15.0
         hideWidthButton()
     }
     
     @IBAction func width4(_ sender: AnyObject) {
-        lineWidth = 12.0
+        lineWidth = 36.0
         hideWidthButton()
     }
     
@@ -70,13 +107,40 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
     }
     
     @IBAction func reset(_ sender: AnyObject) {
-        self.tempDrawImage.image = nil
+        
+        let refreshAlert = UIAlertController(title: "Delete Image?", message: "Erase your image and start over? This cannot be undone.", preferredStyle: UIAlertControllerStyle.alert)
+        
+        refreshAlert.addAction(UIAlertAction(title: "Delete", style: .default, handler: { (action: UIAlertAction!) in
+            
+            UIGraphicsBeginImageContext(self.tempDrawImage.frame.size)
+            self.blankImage?.draw(in: CGRect(x: 0, y: 0, width: self.tempDrawImage.frame.size.width, height: self.tempDrawImage.frame.size.height))
+            
+            self.blankImage = UIGraphicsGetImageFromCurrentImageContext()!
+            UIGraphicsEndImageContext()
+            self.tempDrawImage.image = self.blankImage
+            self.imgStore.removeAll()
+            self.imgStore.append(self.tempDrawImage.image!)
+            
+            
+        }))
+        
+        refreshAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+            print("Cancel")
+            
+            
+            
+        }))
+        
+        present(refreshAlert, animated: true, completion: nil)
+    
+    
+    
 
     }
 
     @IBAction func startButton(_ sender: AnyObject) {
         didStart = true
-        let layerButton = self.view.viewWithTag(10) as! SpringButton
+        let layerButton = self.view.viewWithTag(778) as! SpringButton
         layerButton.animation = "fadeOut"
         
         layerButton.animate()
@@ -84,6 +148,8 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
         
         let viewWithTag = self.view.viewWithTag(555)
         viewWithTag!.removeFromSuperview()
+        let viewWithTag2 = self.view.viewWithTag(768)
+        viewWithTag2!.removeFromSuperview()
         
     }
     
@@ -93,7 +159,7 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
     }
     
     
-    func updateCounter() {
+    @objc func updateCounter() {
         if didStart && counter > 0 {
             counter -= 1
             countDownLabel.text = String(counter)
@@ -128,13 +194,34 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
     override func viewDidLoad() {
        
         super.viewDidLoad()
+        startButtonOutlet.titleLabel?.lineBreakMode = .byWordWrapping
+        startButtonOutlet.titleLabel?.textAlignment = .left
+        let burst = self.view.viewWithTag(88) as! UIImageView
+        let label = self.view.viewWithTag(3) as! UILabel
+        label.sizeToFit()
+        label.adjustsFontSizeToFitWidth = true
+        createStartView()
+        rotateView(targetView: burst, duration: 20.0)
+
+        let screenSize: CGRect = UIScreen.main.bounds
+        self.tempDrawImage.frame = CGRect(x: 0, y: 48, width: screenSize.width, height: screenSize.width)
+        UIGraphicsBeginImageContext(self.tempDrawImage.frame.size)
+        self.tempDrawImage.image?.draw(in: CGRect(x: 0, y: 0, width: self.tempDrawImage.frame.size.width, height: self.tempDrawImage.frame.size.height))
+        
+        
+        colorsOutlet.isHidden = true
+        self.tempDrawImage.image = UIGraphicsGetImageFromCurrentImageContext()
+        blankImage = self.tempDrawImage.image!
+
+        self.imgStore.append(self.tempDrawImage.image!)
+        UIGraphicsEndImageContext()
         // Do any additional setup after loading the view, typically from a nib.
-        ref = FIRDatabase.database().reference()
+        ref = Database.database().reference()
         let layer2 = self.view.viewWithTag(12) as! SpringView
         self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
         widthButtonsView.isHidden = true
         layer2.isHidden = true
-        createStartView()
+        
         if (gameID != nil){
             print(gameID!)
             self.ref?.child("Games/\(gameID!)/status").setValue("inuse")
@@ -161,7 +248,7 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
             }){ (error) in
                 print(error.localizedDescription)
             }
-            if let user  = FIRAuth.auth()?.currentUser{
+            if let user  = Auth.auth().currentUser{
                 
                 let userID: String = user.uid
             ref?.child("Games/\(gameID!)").observeSingleEvent(of: .value, with: { (snapshot) in
@@ -193,8 +280,11 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(true, animated: animated)
-
+        if #available(iOS 11.0, *) {
+            //self.navigationController?.additionalSafeAreaInsets.top = 10
+        }
     }
+   
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
@@ -202,23 +292,51 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
+    private func rotateView(targetView: UIImageView, duration: Double) {
+        UIImageView.animate(withDuration: duration, delay: 0.0, options: .curveLinear, animations: {
+            targetView.transform = targetView.transform.rotated(by: CGFloat(M_PI))
+        }) { finished in
+            self.rotateView(targetView: targetView, duration: duration)
+        }
+    }
     func createStartView(){
+        
+        let viewA = self.view.viewWithTag(768)!
+
         if !UIAccessibilityIsReduceTransparencyEnabled() {
-            self.view.backgroundColor = UIColor.clear
+            viewA.backgroundColor = UIColor.clear
             
             let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
             let blurEffectView = UIVisualEffectView(effect: blurEffect)
+            blurEffectView.alpha = 1
             //always fill the view
             blurEffectView.tag = 555
             blurEffectView.frame = self.view.bounds
             blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            
-            self.view.viewWithTag(11)!.addSubview(blurEffectView) //if you have more UIViews, use an insertSubview API to place it where needed
+            viewA.addSubview(blurEffectView)
+           
         }
         else {
-            self.view.backgroundColor = UIColor.white
+            viewA.backgroundColor = UIColor.white
         }
+        let view1 = self.view.viewWithTag(758)!
+        var view2 = view1
+        view1.removeFromSuperview()
+        
+        view2.tag = 758
+        viewA.addSubview(view2)
+        view2 = self.view.viewWithTag(758)!
+    
+        UIView.animate(withDuration: 1.0, delay: 0, options: [.repeat, .autoreverse], animations: {
+            
+            view2.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+            
+            }, completion: nil)//if you have more UIViews, use an insertSubview API to place it where needed
+        view2.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
+        view2.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
+        
+        view2.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        view2.heightAnchor.constraint(equalToConstant: 300).isActive = true
     }
     
     override func touchesBegan(_ touches: Set<UITouch>,
@@ -238,10 +356,12 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
             self.tempDrawImage.image?.draw(in: CGRect(x: 0, y: 0, width: self.tempDrawImage.frame.size.width, height: self.tempDrawImage.frame.size.height))
             UIGraphicsGetCurrentContext()?.move(to: CGPoint(x: lastPoint.x, y: lastPoint.y))
             UIGraphicsGetCurrentContext()?.addLine(to: CGPoint(x: currentPoint.x, y: currentPoint.y))
+            UIGraphicsGetCurrentContext()?.setStrokeColor(red: red, green: green, blue: blue, alpha: 1)
             UIGraphicsGetCurrentContext()?.setLineCap(CGLineCap.round)
             UIGraphicsGetCurrentContext()?.setLineWidth(lineWidth)
             UIGraphicsGetCurrentContext()?.strokePath()
             self.tempDrawImage.image = UIGraphicsGetImageFromCurrentImageContext()
+            
             UIGraphicsEndImageContext()
             lastPoint = currentPoint
         }
@@ -249,18 +369,79 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
     
     override func touchesEnded(_ touches: Set<UITouch>,
                                with event: UIEvent?){
+        
+        self.imgStore.append(self.tempDrawImage.image!)
+        self.strokeCount =  self.strokeCount + 1
         if(!isSwiping) {
             // This is a single touch, draw a point
             UIGraphicsBeginImageContext(self.tempDrawImage.frame.size)
             self.tempDrawImage.image?.draw(in: CGRect(x: 0, y: 0, width: self.tempDrawImage.frame.size.width, height: self.tempDrawImage.frame.size.height))
             UIGraphicsGetCurrentContext()?.setLineCap(CGLineCap.round)
-            UIGraphicsGetCurrentContext()?.setLineWidth(5.0)
+            UIGraphicsGetCurrentContext()?.setLineWidth(lineWidth)
             UIGraphicsGetCurrentContext()?.move(to: CGPoint(x: lastPoint.x, y: lastPoint.y))
             UIGraphicsGetCurrentContext()?.addLine(to: CGPoint(x: lastPoint.x, y: lastPoint.y))
+            UIGraphicsGetCurrentContext()?.setStrokeColor(red: red, green: green, blue: blue, alpha: 1)
+
             UIGraphicsGetCurrentContext()?.strokePath()
             self.tempDrawImage.image = UIGraphicsGetImageFromCurrentImageContext()
+            
             UIGraphicsEndImageContext()
         }
+        
+    }
+    @IBAction func showColors(_ sender: AnyObject) {
+        colorsOutlet.isHidden = false
+        colorsOutlet.animation = "FadeInLeft"
+        colorsOutlet.force = 1.0
+        colorsOutlet.duration = 1.0
+        
+        colorsOutlet.animate()
+    }
+    @IBAction func closeColors(_ sender: AnyObject) {
+        colorsOutlet.animation = "FadeOutLeft"
+        colorsOutlet.force = 1.0
+        colorsOutlet.duration = 1.0
+        
+        colorsOutlet.animateNext {
+            self.colorsOutlet.isHidden = true
+        }
+        
+       
+       
+
+        
+    }
+    @IBAction func colorButton(_ sender: AnyObject) {
+        var index = sender.tag ?? 0
+        if index < 0 || index >= colors.count {
+            index = 0
+        }
+        
+        // 2
+        (red, green, blue) = colors[index]
+        
+        // 3
+        if index == colors.count - 1 {
+            opacity = 1.0
+        }
+        colorsOutlet.animation = "FadeOutLeft"
+        colorsOutlet.force = 1.0
+        colorsOutlet.duration = 1.0
+
+        colorButtonOutlet.setTitleColor(UIColor(red: red, green: green, blue: blue, alpha: 1.0), for: UIControlState.normal)
+        colorsOutlet.animate()
+        colorsOutlet.isHidden = true
+        
+    }
+    @IBAction func undoButton(_ sender: AnyObject) {
+       
+        if imgStore.count >= 2{
+       
+        self.tempDrawImage.image = imgStore[imgStore.count - 2]
+             imgStore.removeLast()
+        }
+       
+        
     }
     @IBAction func done(_ sender: AnyObject) {
         if (self.tempDrawImage.image == nil){
@@ -271,7 +452,9 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
             UIGraphicsEndImageContext()
         }
         drawingDone()
-       
+       print(imgStore)
+        print(imgStore.count)
+        
 
     }
     func drawingDone(){
@@ -290,24 +473,33 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
         
         
         let drawingLayer = self.view.viewWithTag(2025) as! SpringView
+       
+         let drawingLayerImage = self.view.viewWithTag(2026) as! UIImageView
+        let shadowPath = UIBezierPath(rect: drawingLayerImage.bounds)
+        drawingLayerImage.layer.masksToBounds = true
+        drawingLayerImage.layer.shadowColor = UIColor.black.cgColor
+        drawingLayerImage.layer.shadowOffset = CGSize(width: 1.0, height: 2.0)
+        drawingLayerImage.layer.shadowOpacity = 0.1
+        drawingLayerImage.layer.shadowPath = shadowPath.cgPath
+        drawingLayerImage.layer.backgroundColor = UIColor.white.cgColor
+        drawingLayerImage.layer.cornerRadius = drawingLayerImage.frame.size.width/2
+        drawingLayerImage.clipsToBounds = true
         
-        let shadowPath = UIBezierPath(rect: drawingLayer.bounds)
-        drawingLayer.layer.masksToBounds = true
-        drawingLayer.layer.shadowColor = UIColor.black.cgColor
-        drawingLayer.layer.shadowOffset = CGSize(width: 1.0, height: 2.0)
-        drawingLayer.layer.shadowOpacity = 0.1
-        drawingLayer.layer.shadowPath = shadowPath.cgPath
-        
-        drawingLayer.layer.cornerRadius = drawingLayer.frame.size.width/2
-        drawingLayer.clipsToBounds = true
+        let shadow = self.view.viewWithTag(2024)!
+        shadow.layer.masksToBounds = true
+        shadow.layer.cornerRadius = shadow.frame.size.width/2
+        shadow.clipsToBounds = true
+
         
         
-        let drawingLayerImage = self.view.viewWithTag(2026) as! UIImageView
+       
         drawingLayerImage.image = self.tempDrawImage.image
+        
         
         drawingLayer.animation = "zoomIn"
         drawingLayer.force = 1.0
         drawingLayer.animate()
+
         /*
         drawingLayer.animation = "flipX"
         drawingLayer.repeatCount = Float.infinity
@@ -325,7 +517,7 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
         coin1.animation = "flipX"
         coin1.repeatCount = Float.infinity
         coin1.duration = 2.0
-        coin1.delay = 0.5
+        coin1.delay = 0.25
         coin1.curve = "easeInOut"
         coin1.animate()
         
@@ -357,18 +549,21 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
         coin3.curve = "easeInOut"
         coin3.animate()
         
+        var earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+        earnedCoins += 3
+        UserDefaults.standard.setValue(earnedCoins, forKey: "earnedCoins")
         
         
         let verticalMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.y",
                                                                type: .tiltAlongVerticalAxis)
-        verticalMotionEffect.minimumRelativeValue = -10
-        verticalMotionEffect.maximumRelativeValue = 10
+        verticalMotionEffect.minimumRelativeValue = -20
+        verticalMotionEffect.maximumRelativeValue = 20
         
         // Set horizontal effect
         let horizontalMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.x",
                                                                  type: .tiltAlongHorizontalAxis)
-        horizontalMotionEffect.minimumRelativeValue = -10
-        horizontalMotionEffect.maximumRelativeValue = 10
+        horizontalMotionEffect.minimumRelativeValue = -20
+        horizontalMotionEffect.maximumRelativeValue = 20
         
         // Create group to combine both
         let group = UIMotionEffectGroup()
@@ -376,7 +571,7 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
         
         // Add both effects to your view
         drawingLayer.addMotionEffect(group)
-        
+        successLabel1.addMotionEffect(group)
 
         
       
@@ -403,9 +598,9 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
             goButton.isHidden = true
             
             didStart = true
-            counter = 8
+            counter = 4
             
-            if let user  = FIRAuth.auth()?.currentUser{
+            if let user  = Auth.auth().currentUser{
                 var name: String?
                
                     name = user.displayName!
@@ -423,11 +618,11 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
                     self.ref?.child("Games/\(gameID!)/status").setValue("inplay")
                 }
                 let userID: String = user.uid
-                let interval = FIRServerValue.timestamp()
+                let interval = ServerValue.timestamp()
                 self.ref?.child("Games/\(gameID!)/users").child("\(userID)").setValue(true)
                 self.ref?.child("Games/\(gameID!)/turns").childByAutoId().setValue(["content": base64String, "user": userID,"username": name!, "time": interval, "votes": 0])
                 self.ref?.child("Games/\(gameID!)/time").setValue(interval)
-                self.ref?.child("Teams/\(teamID!)/time").setValue(interval)
+                self.ref?.child("Teams/\(teamID!)/teamInfo/time").setValue(interval)
                 if (teamID!) == "000000"{
                     self.ref?.child("Users/\(userID)/Public/\(gameID!)").setValue(true)
                     

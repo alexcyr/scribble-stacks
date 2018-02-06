@@ -25,7 +25,7 @@ class SettingsButtonCell: UITableViewCell {
     @IBOutlet weak var labelOutlet: UILabel!
     @IBOutlet weak var switchOutlet: UISwitch!
     
-    @IBAction func buttonTap(_ sender: AnyObject) {
+    @IBAction func buttonTap(_ sender: Any) {
         
         if let delegate = buttonDelegate {
             delegate.cellTapped(cell: self)
@@ -33,7 +33,7 @@ class SettingsButtonCell: UITableViewCell {
         }
         
     }
-
+    
 }
 class Word: NSObject {
     
@@ -56,10 +56,11 @@ class Word: NSObject {
 class SettingsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, SettingsButtonCellDelegate  {
     
     
-    internal func cellTapped(cell: SettingsButtonCell) {
-       print("tapped")
+    func cellTapped(cell: SettingsButtonCell) {
+        print("tapped")
         let cellRow = self.tableView.indexPath(for: cell)!.row
-
+        var wordDictionary = UserDefaults.standard.dictionary(forKey: "ownedWords")!
+        print("owned", wordDictionary)
         if (self.tableView.indexPath(for: cell)!.section == 0) {
             sound = cell.switchOutlet.isOn
             self.ref?.child("Users/\(userID)/sound").setValue(sound)
@@ -69,7 +70,8 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             let wordInfo = tableWordsArray[cellRow]
             wordInfo.owned = cell.switchOutlet.isOn
             tableWordsArray[cellRow] = wordInfo
-
+            wordDictionary["\(wordInfo.name)"] = cell.switchOutlet.isOn
+            
             var count = 0
             for word in tableWordsArray{
                 
@@ -82,29 +84,40 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                 if cellRow != 0{
                     let wordEdit = tableWordsArray[cellRow - 1]
                     wordEdit.owned = true
+                    wordDictionary["\(wordEdit.name)"] = true
                     tableWordsArray[cellRow - 1] = wordEdit
-                    self.ref?.child("Users/\(userID)/Words").child("\(wordEdit.name)").setValue(wordEdit.owned)
+                    //self.ref?.child("Users/\(userID)/Words").child("\(wordEdit.name)").setValue(wordEdit.owned)
+                }
+                else if tableWordsArray.count == 1 {
+                    let wordEdit = tableWordsArray[cellRow]
+                    wordEdit.owned = true
+                    wordDictionary["\(wordEdit.name)"] = true
+                    tableWordsArray[cellRow] = wordEdit
+                    //self.ref?.child("Users/\(userID)/Words").child("\(wordEdit.name)").setValue(wordEdit.owned)
+                    
                 }
                 else{
                     let wordEdit = tableWordsArray[cellRow + 1]
                     wordEdit.owned = true
+                    wordDictionary["\(wordEdit.name)"] = true
                     tableWordsArray[cellRow + 1] = wordEdit
-                    self.ref?.child("Users/\(userID)/Words").child("\(wordEdit.name)").setValue(wordEdit.owned)
+                    //self.ref?.child("Users/\(userID)/Words").child("\(wordEdit.name)").setValue(wordEdit.owned)
                 }
                 self.tableView.reloadData()
-
+                
             }
-                        self.ref?.child("Users/\(userID)/Words").child("\(wordInfo.name)").setValue(wordInfo.owned)
-
+            UserDefaults.standard.setValue(wordDictionary, forKey: "ownedWords")
+            // self.ref?.child("Users/\(userID)/Words").child("\(wordInfo.name)").setValue(wordInfo.owned)
+            
         }
     }
-
+    
     
     
     
     @IBOutlet weak var tableView: UITableView!
     var data : String!
-    var ref: FIRDatabaseReference?
+    var ref: DatabaseReference?
     var wordGroups: [Any] = []
     var ownedWords: [Any] = []
     var ownedWordsBool: [Any] = []
@@ -121,12 +134,12 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         let textField = self.view.viewWithTag(26) as! UITextField
         let newName = textField.text!
         if newName != ""{
-        self.ref?.child("Users/\(userID)/username").setValue("\(newName)")
+            self.ref?.child("Users/\(userID)/username").setValue("\(newName)")
             
             // Updates the user attributes:
-            let user = FIRAuth.auth()?.currentUser
+            let user = Auth.auth().currentUser
             if let user = user {
-                let changeRequest = user.profileChangeRequest()
+                let changeRequest = user.createProfileChangeRequest()
                 
                 changeRequest.displayName = "\(newName)"
                 
@@ -137,12 +150,12 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                     } else {
                         // Profile updated.
                         print("sucess")
-
-
+                        
+                        
                     }
                 }
             }
-
+            
             let refreshAlert = UIAlertController(title: "Success!", message: "Name changed to \(newName)!", preferredStyle: UIAlertControllerStyle.alert)
             
             refreshAlert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (action: UIAlertAction!) in
@@ -164,7 +177,7 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             
             present(refreshAlert, animated: true, completion: nil)
         }
-
+        
         
     }
     
@@ -172,30 +185,41 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         super.viewDidLoad()
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         
-        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
-        self.tableView.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
+        let wordDictionary = UserDefaults.standard.dictionary(forKey: "ownedWords")!
+        self.ownedWords = Array(wordDictionary.keys)
+        self.ownedWordsBool = Array(wordDictionary.values)
+        
+        self.coins = UserDefaults.standard.integer(forKey: "earnedCoins")
+
+        
+        
+        self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+        self.tableView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
         self.tableView.allowsSelection = false
         
         
         //navbar logo
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
-        imageView.contentMode = .scaleAspectFit
-        let image = UIImage(named: "scribble-logo.png")
+        let image = UIImage(named: "scribble-logo-light.png")
+        let logoView = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 30))
+        let imageView = UIImageView(frame: CGRect(x: -45, y: -8, width: 90, height: 46))
         imageView.image = image
-        navigationItem.titleView = imageView
+        imageView.contentMode = .scaleAspectFit
+        logoView.addSubview(imageView)
+        self.navigationItem.titleView = logoView
         
         self.tableView.delegate = self
         self.tableView.dataSource = self
         
-        ref = FIRDatabase.database().reference()
+        ref = Database.database().reference()
         
-       
+        
         
         
         let group1 = DispatchGroup()
         let group2 = DispatchGroup()
         group1.enter()
-        if let user  = FIRAuth.auth()?.currentUser{
+        if let user  = Auth.auth().currentUser{
             userID = user.uid
             print("dame")
             print(userID)
@@ -207,7 +231,7 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                 print(snapshot)
                 if snapshot.hasChildren(){
                     let snap = snapshot.value! as! NSDictionary
-                    self.coins = (snap["currency"] as! Int)
+                    self.coins = self.coins + (snap["currency"] as! Int)
                     self.username = (snap["username"] as! String)
                     self.sound = (snap["sound"] as! Bool)
                     let textField = self.view.viewWithTag(26) as! UITextField
@@ -215,8 +239,8 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                     let wordData = (snap["Words"] as! NSDictionary)
                     print("poop")
                     print(snapshot.value)
-                    self.ownedWords = Array(wordData.allKeys)
-                    self.ownedWordsBool = Array(wordData.allValues)
+                    //self.ownedWords = Array(wordData.allKeys)
+                    // self.ownedWordsBool = Array(wordData.allValues)
                     print(self.ownedWords)
                     print(self.ownedWordsBool)
                     print("rocka")
@@ -229,33 +253,52 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                 
                 
             })
-            
-            group1.notify(queue: DispatchQueue.main, execute: {
-                self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "\(self.coins)💰", style: .plain, target: self, action: #selector(self.barButtonItemClicked))
-                group2.enter()
-                var count = 0
-                for word in self.ownedWords{
-                    let ownedBool = self.ownedWordsBool[count] as! Bool
-                    let tableWord = Word(name: "\(word)", owned: ownedBool)
-                    self.tableWordsArray.append(tableWord)
-                    count = count + 1
-                    if count == self.ownedWords.count{
-                        group2.leave()
-                    }
-                }
-                
-
-                
-                group2.notify(queue: DispatchQueue.main, execute: {
-              
-                    self.tableView.reloadData()
-                    print(self.tableData)
-                })
-            })
+        }else{
+            group1.leave()
         }
         
+        group1.notify(queue: DispatchQueue.main, execute: {
+            let attachment = NSTextAttachment()
+            attachment.bounds = CGRect(x: 0, y: -8,width: 30,height: 30);
+            attachment.image = UIImage(named: "bobCoin.png")
+            let attachmentString = NSAttributedString(attachment: attachment)
+            var attributes = [NSAttributedStringKey: AnyObject]()
+            attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0xF9A919)
+            let myString = NSMutableAttributedString(string: "\(self.coins) ", attributes: attributes)
+            myString.append(attachmentString)
+            
+            let label = UILabel()
+            label.attributedText = myString
+            label.sizeToFit()
+            let newBackButton = UIBarButtonItem(customView: label)
+            
+            self.navigationItem.rightBarButtonItem = newBackButton
+            
+            
+            group2.enter()
+            var count = 0
+            for word in self.ownedWords{
+                let ownedBool = self.ownedWordsBool[count] as! Bool
+                let tableWord = Word(name: "\(word)", owned: ownedBool)
+                self.tableWordsArray.append(tableWord)
+                count = count + 1
+                if count == self.ownedWords.count{
+                    group2.leave()
+                }
+            }
+            
+            
+            
+            group2.notify(queue: DispatchQueue.main, execute: {
+                
+                self.tableView.reloadData()
+                print(self.tableData)
+            })
+        })
+        
+        
     }
-    func barButtonItemClicked(sender: UIBarButtonItem) {
+    @objc func barButtonItemClicked(sender: UIBarButtonItem) {
         print("clicked")
     }
     
@@ -281,7 +324,7 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var rowCount = 0
         if section == 0 {
-            rowCount = 2
+            rowCount = 1
         }
         else{
             let count = self.tableWordsArray.count
@@ -298,9 +341,9 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                 return 130.0
             }
         }
-            
         
-            return 50.0
+        
+        return 50.0
         
         
     }
@@ -312,47 +355,51 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         
         if (indexPath.section == 0) {
             if n < 1{
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: "ChangeName", for: indexPath as IndexPath) as! UITableViewCell
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: "ChangeName", for: indexPath as IndexPath)
+                cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+                
                 return cell
-
+                
             }
             else{
                 let cell = tableView.dequeueReusableCell(
                     withIdentifier: "OnOffSwitch", for: indexPath as IndexPath) as! SettingsButtonCell
                 cell.labelOutlet.text = "Sound Effects"
                 cell.switchOutlet.isOn = sound
+                cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+                
                 if cell.buttonDelegate == nil {
                     cell.buttonDelegate = self
                 }
                 
                 return cell
-
+                
             }
         }
-        
-        
+            
+            
         else{
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: "OnOffSwitch", for: indexPath as IndexPath) as! SettingsButtonCell
-        
-        
-        
-        if cell.buttonDelegate == nil {
-            cell.buttonDelegate = self
-        }
-        
-        cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
-        cell.layer.borderColor = UIColorFromRGB(rgbValue: 0xE6E7E8).cgColor
-        cell.layer.borderWidth = 3
-        
-        let cellInfo = tableWordsArray[n]
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: "OnOffSwitch", for: indexPath as IndexPath) as! SettingsButtonCell
+            cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+            
+            
+            
+            
+                cell.buttonDelegate = self
+            
+            
+            cell.layer.borderColor = UIColorFromRGB(rgbValue: 0xffffff).cgColor
+            cell.layer.borderWidth = 3
+            
+            let cellInfo = tableWordsArray[n]
             let wordTitle = cellInfo.name
-        let wordValue = cellInfo.owned
-        
-        cell.labelOutlet.text = wordTitle
-        cell.switchOutlet.isOn = wordValue
-        return cell
+            let wordValue = cellInfo.owned
+            
+            cell.labelOutlet.text = wordTitle
+            cell.switchOutlet.setOn(wordValue, animated: true)
+            return cell
         }
         
         //  Now do whatever you were going to do with the title.
@@ -416,3 +463,5 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
     }
     
 }
+
+

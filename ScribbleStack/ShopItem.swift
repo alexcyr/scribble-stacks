@@ -12,12 +12,15 @@ class ShopItem: NSObject{
     var name: String
     var owned: Bool
     var value: Int
+    var image: UIImage
    
     
-    init(name: String, owned: Bool, value: Int){
+    init(name: String, owned: Bool, value: Int, image: UIImage){
         self.name = name
         self.owned = owned
         self.value = value
+        self.image = image
+
         
         super.init()
     }

@@ -68,7 +68,7 @@ public class Spring : NSObject {
         NotificationCenter.default.addObserver(self, selector: #selector(Spring.didBecomeActiveNotification(_:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
     }
     
-    func didBecomeActiveNotification(_ notification: NSNotification) {
+    @objc func didBecomeActiveNotification(_ notification: NSNotification) {
         if shouldAnimateAfterActive {
             alpha = 0
             animate()
@@ -125,6 +125,7 @@ public class Spring : NSObject {
         case Shake = "shake"
         case Pop = "pop"
         case FlipX = "flipX"
+        case Flip = "flip"
         case FlipY = "flipY"
         case Morph = "morph"
         case Squeeze = "squeeze"
@@ -274,6 +275,23 @@ public class Spring : NSObject {
                 animation.beginTime = CACurrentMediaTime() + CFTimeInterval(delay)
                 animation.timingFunction = getTimingFunction(curve: curve)
                 layer.add(animation, forKey: "3d")
+            case .Flip:
+                rotate = 0
+                scaleX = 1
+                scaleY = 1
+                var perspective = CATransform3DIdentity
+                perspective.m34 = -1.0 / layer.frame.size.width/2
+                
+                let animation = CABasicAnimation()
+                animation.keyPath = "transform"
+                animation.fromValue = NSValue(caTransform3D: CATransform3DMakeRotation(0, 0, 0, 0))
+                animation.toValue = NSValue(caTransform3D:
+                    CATransform3DConcat(perspective, CATransform3DMakeRotation(CGFloat(M_PI), 0, 1, 0)))
+                animation.duration = CFTimeInterval(duration)
+                animation.beginTime = CACurrentMediaTime() + CFTimeInterval(delay)
+                animation.repeatCount = Float.infinity
+                animation.timingFunction = getTimingFunction(curve: curve)
+                layer.add(animation, forKey: "3d")
             case .FlipY:
                 var perspective = CATransform3DIdentity
                 perspective.m34 = -1.0 / layer.frame.size.width/2
@@ -344,6 +362,7 @@ public class Spring : NSObject {
                 animation.values = [0, 0.3*force, -0.3*force, 0.3*force, 0]
                 animation.keyTimes = [0, 0.2, 0.4, 0.6, 0.8, 1]
                 animation.duration = CFTimeInterval(duration)
+                animation.repeatCount = repeatCount
                 animation.isAdditive = true
                 animation.beginTime = CACurrentMediaTime() + CFTimeInterval(delay)
                 layer.add(animation, forKey: "wobble")
