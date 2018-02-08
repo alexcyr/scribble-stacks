@@ -143,8 +143,7 @@ class TabBarViewController: SwipeableTabBarController {
                     let dbCoins = (snap["currency"] as! Int)
                     self.coins = self.coins + dbCoins
                     
-                    if let teamsData = (snap["Teams"] as? NSDictionary){
-                        print(snapshot.value)
+                    if (snap["Teams"] as? NSDictionary) != nil{
                         
                         group1.leave()
                     }

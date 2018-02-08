@@ -41,10 +41,7 @@ class NewTeamTabViewController: UIViewController {
             buttonOutlet.backgroundColor = UIColorFromRGB(rgbValue: 0xF1F1F2)
             loggedIn = false
         }
-        let screenSize = UIScreen.main.bounds
-        let screenWidth = screenSize.width
-        let screenHeight = screenSize.height
-        
+      
         let team1 = self.view.viewWithTag(111) as! UIImageView
         let team2 = self.view.viewWithTag(112) as! UIImageView
         

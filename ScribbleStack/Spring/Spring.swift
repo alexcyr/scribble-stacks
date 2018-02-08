@@ -228,7 +228,7 @@ public class Spring : NSObject {
                 scaleY = 2*force
             case .Fall:
                 animateFrom = false
-                rotate = 15 * CGFloat(M_PI/180)
+                rotate = 15 * CGFloat(Double.pi/180)
                 y = -600*force
             case .Shake:
                 let animation = CAKeyframeAnimation()
@@ -286,7 +286,7 @@ public class Spring : NSObject {
                 animation.keyPath = "transform"
                 animation.fromValue = NSValue(caTransform3D: CATransform3DMakeRotation(0, 0, 0, 0))
                 animation.toValue = NSValue(caTransform3D:
-                    CATransform3DConcat(perspective, CATransform3DMakeRotation(CGFloat(M_PI), 0, 1, 0)))
+                    CATransform3DConcat(perspective, CATransform3DMakeRotation(CGFloat(Double.pi), 0, 1, 0)))
                 animation.duration = CFTimeInterval(duration)
                 animation.beginTime = CACurrentMediaTime() + CFTimeInterval(delay)
                 animation.repeatCount = Float.infinity
@@ -301,7 +301,7 @@ public class Spring : NSObject {
                 animation.fromValue = NSValue(caTransform3D:
                     CATransform3DMakeRotation(0, 0, 0, 0))
                 animation.toValue = NSValue(caTransform3D:
-                    CATransform3DConcat(perspective,CATransform3DMakeRotation(CGFloat(M_PI), 1, 0, 0)))
+                    CATransform3DConcat(perspective,CATransform3DMakeRotation(CGFloat(Double.pi), 1, 0, 0)))
                 animation.duration = CFTimeInterval(duration)
                 animation.beginTime = CACurrentMediaTime() + CFTimeInterval(delay)
                 animation.timingFunction = getTimingFunction(curve: curve)

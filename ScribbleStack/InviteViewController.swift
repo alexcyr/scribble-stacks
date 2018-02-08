@@ -20,6 +20,7 @@ class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDele
     var teamName: String?
     var customUrl = ""
     var encodedURL = ""
+    var coins: Int?
     @IBOutlet weak var inviteButton: UIButton!
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var startOutlet: UIButton!
@@ -84,12 +85,37 @@ class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDele
         //self.view.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
 
         navigationController?.delegate = self
-        startOutlet.isEnabled = true
+        startOutlet.isEnabled = false
         startOutlet.layer.backgroundColor = UIColorFromRGB(rgbValue: 0xe5e5e5).cgColor
 
         customUrl = "http://scribblestack.com/teamID=\(teamID!)"
         encodedURL = customUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         print(encodedURL)
+        
+        //navbar logo
+        let image = UIImage(named: "scribble-logo-light.png")
+        let logoView = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 30))
+        let imageView = UIImageView(frame: CGRect(x: -45, y: -8, width: 90, height: 46))
+        imageView.image = image
+        imageView.contentMode = .scaleAspectFit
+        logoView.addSubview(imageView)
+        self.navigationItem.titleView = logoView
+        
+        let attachment = NSTextAttachment()
+        attachment.bounds = CGRect(x: 0, y: -8,width: 30,height: 30);
+        attachment.image = UIImage(named: "bobCoin.png")
+        let attachmentString = NSAttributedString(attachment: attachment)
+        var attributes = [NSAttributedStringKey: AnyObject]()
+        attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0xF9A919)
+        let myString = NSMutableAttributedString(string: "\(self.coins!) ", attributes: attributes)
+        myString.append(attachmentString)
+        
+        let label = UILabel()
+        label.attributedText = myString
+        label.sizeToFit()
+        let newBackButton = UIBarButtonItem(customView: label)
+        self.navigationItem.rightBarButtonItem = newBackButton
+
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -113,14 +139,16 @@ class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDele
     }
     // [END toggle_auth]
     // [START invite_finished]
-    func inviteFinished(withInvitations invitationIds: [Any], error: Error?) {
+  
+    func inviteFinished(withInvitations invitationIds: [String], error: Error?) {
         if let error = error {
             print("Failed: " + error.localizedDescription)
         } else {
             let inviteCount = invitationIds.count
             if inviteCount > 0 {
                 startOutlet.isEnabled = true
-                startOutlet.layer.backgroundColor = UIColorFromRGB(rgbValue: 0xCE3651).cgColor
+                startOutlet.setTitleColor(UIColor.white, for: .normal)
+                startOutlet.backgroundColor = UIColorFromRGB(rgbValue: 0x01A7B9)
 
                 statusText.text = "\(inviteCount) friends invited. Click 'Start Game' to begin!"
                 

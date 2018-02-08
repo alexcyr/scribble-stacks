@@ -54,7 +54,7 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         print(cellRow)
         print(rowCount)
         
-        var cellTextRight = tableData[sectionCount][(2 * cellRow) + 1]
+        let cellTextRight = tableData[sectionCount][(2 * cellRow) + 1]
         let rightTitle = cellTextRight.name
         let rightValue = cellTextRight.value
         let rightOwned = cellTextRight.owned as Bool
@@ -333,9 +333,9 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         ref = Database.database().reference()
         
-        var coinPack1 = ShopItem(name: "50", owned: false, value: 1, image: UIImage(named: "bobCoin.png")!)
-        var coinPack2 = ShopItem(name: "150", owned: false, value: 2,  image: UIImage(named: "bobCoin.png")!)
-        var coinPack3 = ShopItem(name: "500", owned: false, value: 5,  image: UIImage(named: "bobCoin.png")!)
+        let coinPack1 = ShopItem(name: "50", owned: false, value: 1, image: UIImage(named: "bobCoin.png")!)
+        let coinPack2 = ShopItem(name: "150", owned: false, value: 2,  image: UIImage(named: "bobCoin.png")!)
+        let coinPack3 = ShopItem(name: "500", owned: false, value: 5,  image: UIImage(named: "bobCoin.png")!)
         
         coinPacks.append(coinPack1)
         
@@ -347,9 +347,6 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let group2 = DispatchGroup()
         group1.enter()
         
-        var teamTotal = 0
-        var teamCount = 0
-        var teamGameCount = 0
         var allWordsDict: NSDictionary?
         if let user  = Auth.auth().currentUser{
             userID = user.uid
@@ -362,9 +359,8 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 if snapshot.hasChildren(){
                     let snap = snapshot.value! as! NSDictionary
                     self.coins = self.coins + (snap["currency"] as! Int)
-                    let wordData = (snap["Words"] as! NSDictionary)
+                    _ = (snap["Words"] as! NSDictionary)
                     print("poop")
-                    print(snapshot.value)
                     //self.ownedWords = Array(wordData.allKeys)
                     print(self.ownedWords)
                     print("rocka")
@@ -391,7 +387,6 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 self.wordGroups = Array(allWordsDict!.allKeys)
                     print(self.wordGroups)
                     print("limes")
-                    teamTotal = self.wordGroups.count
                     var n = 0
                     for words in self.wordGroups{
                         let word = words as! String
@@ -608,7 +603,7 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int){
         
-        let header = view as! UITableViewHeaderFooterView
+        _ = view as! UITableViewHeaderFooterView
         view.tintColor = UIColorFromRGB(rgbValue: 0xffffff)
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -616,7 +611,6 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
-        let n = indexPath.row
         
        return (screenWidth/2) + 30
         

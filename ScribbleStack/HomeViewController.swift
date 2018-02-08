@@ -99,9 +99,7 @@ populateTable()
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector:#selector(populateTable), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
 
-        let screenSize = UIScreen.main.bounds
-        let screenWidth = screenSize.width
-        let screenHeight = screenSize.height
+        
         let homeSplash = self.view.viewWithTag(42)! as UIView
          homeSplash.alpha = 0
         homeSplash.isHidden = true
@@ -129,7 +127,7 @@ populateTable()
         
         //navbar logo
         let image = UIImage(named: "scribble-logo-light.png")
-        let logoView = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 30))
+        let logoView = UIView.init(frame: CGRect(x: 0, y: 0, width: 0, height: 20))
         let imageView = UIImageView(frame: CGRect(x: -45, y: -8, width: 90, height: 46))
         imageView.image = image
         imageView.contentMode = .scaleAspectFit
@@ -196,10 +194,8 @@ populateTable()
                     
                     if let teamsData = (snap["Teams"] as? NSDictionary){
                         
-                        print(snapshot.value)
                         self.teamIDs = Array(teamsData.allKeys)
                         print(self.teamIDs)
-                        print("baaaaah")
                         teamTotal = self.teamIDs.count
                         print(teamTotal)
                         
@@ -249,10 +245,8 @@ populateTable()
                         let nameData = snapshot.value as? NSDictionary
                         team.teamName = (nameData?["team"]! as? String)!
                         //let games = (nameData?["games"]! as? NSDictionary)!
-                        print(nameData)
                         
                         let users = nameData?["users"] as! NSDictionary!
-                        print(users)
                         let userValue = users?["\(self.userID)"]! as! NSDictionary!
                         
                         let inuseTime = nameData?["time"]! as? TimeInterval
@@ -278,7 +272,6 @@ populateTable()
                         
                         
                         let activeGame: Bool? = userValue?["activeGame"]! as! Bool?
-                        print(userValue)
                         if activeGame!{
                             
                         }
@@ -433,8 +426,6 @@ populateTable()
                                 self.tableView.reloadData()
                                 print(self.tableData)
                                 print("right meow")
-                                let range = NSMakeRange(0, self.tableView.numberOfSections)
-                                let sections = NSIndexSet(indexesIn: range)
                                 self.tableView.reloadSections(IndexSet(integer: 1), with: .automatic)
                                 self.tableView.reloadSections(IndexSet(integer: 2), with: .automatic)
                                 
@@ -608,6 +599,9 @@ populateTable()
             label.text = "NO GAMES FOUND"
             label.textColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
             label.font = UIFont(name: "BungeeInline-Regular", size: 30)
+            if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                label.font = UIFont(name: "BungeeInline-Regular", size: 48)
+            }
             label.sizeToFit()
             label.textAlignment = NSTextAlignment.center
             label.bounds = CGRect(x: 0, y: 200, width: tableView.frame.size.width, height: 30)
@@ -661,6 +655,13 @@ populateTable()
             }
 
               label.text = cellText.teamName
+            if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                label.font = UIFont(name: "Bungee-Regular", size: 48)
+                playerLabel.font = UIFont(name: "Rajdhani-Bold", size: 18)
+                gameLabel.font = UIFont(name: "Rajdhani-Bold", size: 18)
+                timeLabel.font = UIFont(name: "Rajdhani-Light", size: 18)
+            }
+
             label.numberOfLines = 1
             label.minimumScaleFactor = 0.3
             label.adjustsFontSizeToFitWidth = true
@@ -749,7 +750,10 @@ populateTable()
         if(indexPath.section == 0){
                 return 1.0
         }
-            else if tableData[indexPath.section - 1].count == 0{
+        if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+            return 120.0
+        }
+        else if tableData[indexPath.section - 1].count == 0{
              return 60.0
         }
         else if tableData[indexPath.section - 1].count == 1{
@@ -757,6 +761,7 @@ populateTable()
                 return 120.0
             }
             else{
+                
                 return 80.0
             }
         }
@@ -832,7 +837,7 @@ populateTable()
             navigationItem.backBarButtonItem = backItem
             
             let controller = segue.destination as! TeamViewController
-            if teamID != nil{
+            if teamID != "000000"{
                 controller.teamID = teamID
                 controller.team = selectedTeam
                 controller.coins = self.coins

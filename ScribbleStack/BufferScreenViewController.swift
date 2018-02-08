@@ -15,7 +15,9 @@ import Lottie
 
 
 class BufferScreenViewController: UIViewController, NVActivityIndicatorViewable{
+    @IBOutlet weak var animConstraintTop: NSLayoutConstraint!
     
+    @IBOutlet weak var pencilConstraint: NSLayoutConstraint!
     var game: Game!
     var teamID: String?
     var gameID: String?
@@ -88,7 +90,6 @@ class BufferScreenViewController: UIViewController, NVActivityIndicatorViewable{
             }
             else if wordFound == true{
                 self.ref.child("Games/\(gameID!)").observeSingleEvent(of: .value, with: { (snapshot) in
-                    print(snapshot.value)
                     let gameData = snapshot.value as? NSDictionary
                     
                     
@@ -114,7 +115,6 @@ class BufferScreenViewController: UIViewController, NVActivityIndicatorViewable{
             }
             else if drawingFound == true{
                 self.ref.child("Games/\(gameID!)").observeSingleEvent(of: .value, with: { (snapshot) in
-                    print(snapshot.value)
                     let gameData = snapshot.value as? NSDictionary
                     
                     
@@ -215,6 +215,7 @@ found.text = ""
         let found = self.view.viewWithTag(9) as! UILabel
         found.isHidden = true
         
+       
         textAnimOutlet.isHidden = true
         noGamesOutlet.isHidden = true
         completeOutlet.isHidden = true
@@ -395,8 +396,8 @@ found.text = ""
                 noGamesOutlet.duration = 1.0
                 
                 noGamesOutlet.animate()
-                    var imageA = self.view.viewWithTag(101) as! UIImageView
-                    var imageB = self.view.viewWithTag(102) as! UIImageView
+                let imageA = self.view.viewWithTag(101) as! UIImageView
+                let imageB = self.view.viewWithTag(102) as! UIImageView
                 imageA.animationImages = [(UIImage(named: "tableFlipa1.png")!), (UIImage(named: "tableFlipa2.png")!)]
                 imageA.animationDuration = 0.5
                 imageB.animationImages = [(UIImage(named: "tableFlipb1.png")!), (UIImage(named: "tableFlipb2.png")!)]
@@ -494,37 +495,44 @@ found.text = ""
         let found = self.view.viewWithTag(9) as! UILabel
 
         found.isHidden = false
-        
-        
+     
         let circleSpacing: CGFloat = 2
         let circleSize = (self.scribbleDotAnim.bounds.size.width - circleSpacing * 2) / 7
-        let deltaY = (self.scribbleDotAnim.bounds.size.width / 3 - circleSize / 2)
+        var deltaY = (self.scribbleDotAnim.bounds.size.width / 3 - circleSize / 2)
         let duration: CFTimeInterval = 1
         let beginTime = CACurrentMediaTime()
-        let beginTimes: [CFTimeInterval] = [0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49]
+        let _: [CFTimeInterval] = [0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49]
         let timingFunciton = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
         // Animation
         let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
         
+        
+        let pencil = self.view.viewWithTag(111) as! UIImageView
+        if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+            deltaY = (self.scribbleDotAnim.bounds.size.width / 1.5 - circleSize / 2)
+            animConstraintTop.constant = -100.0
+            pencilConstraint.constant = 300.0
+            
+        }
         animation.keyTimes = [0, 0.5, 1]
         animation.timingFunctions = [timingFunciton, timingFunciton, timingFunciton]
         animation.values = [deltaY, -deltaY, deltaY]
         animation.duration = duration
         animation.repeatCount = HUGE
         animation.isRemovedOnCompletion = false
-        
-        let pencil = self.view.viewWithTag(111) as! UIImageView
         // Draw circles
         self.scribbleDotAnim.startAnimating()
         animation.beginTime = beginTime
         pencil.isHidden = false
         pencil.layer.add(animation, forKey: "animation")
-        let type = "Time to draw some scribbles!"
+        let type = "Get ready to draw!"
         let label = self.view.viewWithTag(10) as! UILabel
         
         label.text = type
-        
         let pencilView = self.view.viewWithTag(7) as! SpringView
+        
+        
+        
         pencilView.animation = "ZoomIn"
         pencilView.force = 1.0
         pencilView.duration = 1.0
@@ -533,7 +541,7 @@ found.text = ""
    
     private func rotateView(targetView: UIImageView, duration: Double) {
         UIImageView.animate(withDuration: duration, delay: 0.0, options: .curveLinear, animations: {
-            targetView.transform = targetView.transform.rotated(by: CGFloat(M_PI))
+            targetView.transform = targetView.transform.rotated(by: CGFloat(Double.pi))
         }) { finished in
             self.rotateView(targetView: targetView, duration: duration)
         }
@@ -541,6 +549,8 @@ found.text = ""
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(true, animated: animated)
         super.viewWillAppear(animated)
+        
+   
         if let user  = Auth.auth().currentUser{
             let userID = user.uid
             print("yoda was here")
@@ -606,12 +616,11 @@ found.text = ""
     func checkNewGame(teamID: String, userID: String ){
         ref.child("Teams/\(teamID)/teamInfo/users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
             let data = snapshot.value as? NSDictionary
-            print (data)
             let activeGame: Bool? = data?["activeGame"]! as! Bool?
             if activeGame!{
             }
             else{
-                print("check check: \(self.gameID)")
+                print("check check: \(self.gameID ?? "")")
                 
                 if self.gameID == nil{
                     self.newGame = true
@@ -865,7 +874,6 @@ found.text = ""
                     else{
                         
                         self.ref.child("Games/\(data)").observeSingleEvent(of: .value, with: { (snapshot) in
-                            print(snapshot.value)
                             let gameData = snapshot.value as? NSDictionary
                             let userData = gameData?["users"] as! NSDictionary
                             var userKey = true
@@ -1084,8 +1092,10 @@ found.text = ""
             }
         }
         if segue.identifier == "BufferToHome" {
+          
             let DestViewController = segue.destination as! UINavigationController
             let targetController = DestViewController.topViewController as! TabBarViewController
+            
             
             
         }

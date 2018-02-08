@@ -186,7 +186,7 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     }
  
     
-    func textFieldShouldReturn(_ textField: UITextField!) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
         //textField code
         
@@ -315,6 +315,11 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
         
         let drawingLayerImage = self.view.viewWithTag(2026) as! UILabel
         drawingLayerImage.text = captionField.text! as String
+        
+        if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+            drawingLayerImage.font = UIFont(name: "Bungee-Regular", size: 48)
+        }
+        
         
         drawingLayer.animation = "zoomIn"
         drawingLayer.force = 1.0
@@ -475,7 +480,7 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     
     private func rotateView(targetView: UIImageView, duration: Double) {
         UIImageView.animate(withDuration: duration, delay: 0.0, options: .curveLinear, animations: {
-            targetView.transform = targetView.transform.rotated(by: CGFloat(M_PI))
+            targetView.transform = targetView.transform.rotated(by: CGFloat(Double.pi))
         }) { finished in
             self.rotateView(targetView: targetView, duration: duration)
         }

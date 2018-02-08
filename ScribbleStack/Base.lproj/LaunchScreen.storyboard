@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -21,14 +22,16 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="scribble-logo" translatesAutoresizingMaskIntoConstraints="NO" id="9eH-ep-TdG">
-                                <rect key="frame" x="51" y="249" width="272" height="168"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="scribble-logo" translatesAutoresizingMaskIntoConstraints="NO" id="9eH-ep-TdG">
+                                <rect key="frame" x="-59" y="167" width="436" height="248"/>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" red="0.0039215686269999999" green="0.65490196079999996" blue="0.72549019609999998" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" red="0.0" green="0.34901960780000002" blue="0.4549019608" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="9eH-ep-TdG" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="GYR-mM-ZHg"/>
-                            <constraint firstItem="9eH-ep-TdG" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="SeW-ff-3dV"/>
+                            <constraint firstItem="9eH-ep-TdG" firstAttribute="top" secondItem="Llm-lL-Icb" secondAttribute="bottom" constant="147" id="91T-Qb-9Eg"/>
+                            <constraint firstItem="9eH-ep-TdG" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leadingMargin" constant="-75" id="A5m-4x-drZ"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="9eH-ep-TdG" secondAttribute="trailing" constant="-73" id="y5a-Yo-TUx"/>
+                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="9eH-ep-TdG" secondAttribute="bottom" constant="153" id="yn9-Wg-wIi"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -38,6 +41,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="scribble-logo" width="250" height="186"/>
+        <image name="scribble-logo" width="188" height="188"/>
     </resources>
 </document>

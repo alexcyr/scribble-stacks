@@ -14,10 +14,10 @@ import NVActivityIndicatorView
 extension UIImageView{
     func rotate() {
         let rotation : CABasicAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
-        rotation.toValue = NSNumber(value: M_PI * 2)
+        rotation.toValue = NSNumber(value: Double.pi * 2)
         rotation.duration = 1
         rotation.isCumulative = true
-        rotation.repeatCount = FLT_MAX
+        rotation.repeatCount = Float.greatestFiniteMagnitude
         self.layer.add(rotation, forKey: "rotationAnimation")
     }
 }
@@ -204,7 +204,11 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
         rotateView(targetView: burst, duration: 20.0)
 
         let screenSize: CGRect = UIScreen.main.bounds
+
         self.tempDrawImage.frame = CGRect(x: 0, y: 48, width: screenSize.width, height: screenSize.width)
+        print("width",tempDrawImage.frame.width)
+        print("height",tempDrawImage.frame.height)
+print("size",self.tempDrawImage.frame.size)
         UIGraphicsBeginImageContext(self.tempDrawImage.frame.size)
         self.tempDrawImage.image?.draw(in: CGRect(x: 0, y: 0, width: self.tempDrawImage.frame.size.width, height: self.tempDrawImage.frame.size.height))
         
@@ -235,7 +239,6 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
                 let n = self.turnsArray.count
                
                 _ = snapshot.value as? NSDictionary
-                print(self.turnsArray[0])
                 let turnID = self.turnsArray[n-1] as! NSObject
                 print(n)
                
@@ -294,7 +297,7 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
     }
     private func rotateView(targetView: UIImageView, duration: Double) {
         UIImageView.animate(withDuration: duration, delay: 0.0, options: .curveLinear, animations: {
-            targetView.transform = targetView.transform.rotated(by: CGFloat(M_PI))
+            targetView.transform = targetView.transform.rotated(by: CGFloat(Double.pi))
         }) { finished in
             self.rotateView(targetView: targetView, duration: duration)
         }

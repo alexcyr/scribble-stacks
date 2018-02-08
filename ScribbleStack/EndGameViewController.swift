@@ -674,7 +674,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         // If you want to put an image
         
         let activityViewController : UIActivityViewController = UIActivityViewController(
-            activityItems: [image], applicationActivities: nil)
+            activityItems: [image!], applicationActivities: nil)
         
         // This lines is for the popover you need to show in iPad
         activityViewController.popoverPresentationController?.sourceView = (sender as! UIButton)
@@ -744,7 +744,6 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         // Do any additional setup after loading the view, typically from a nib.
         ref = Database.database().reference()
         
-        let group1 = DispatchGroup()
         
         tableView.delegate = self
         tableView.dataSource = self
@@ -774,8 +773,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 
                 
                
-                print(self.turnsArray[n-1])
-                let turnID = self.turnsArray[n-1] as! NSObject
+                _ = self.turnsArray[n-1] as! NSObject
                 print(n)
                 
                 if n == 8{
@@ -881,19 +879,30 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                
                     if(gameID != nil){
                         if(n%2 == 0){
-                            
+                            if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                                return 120.0
+                            }
+
                             return 98.0
                         }
                         else{
+                            if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                                return (screenWidth + 60.0)
+                            }
                         return (screenWidth + 50.0)
                         }
                     }
                     else{
                         if(n%2 == 0){
-                            
+                            if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                                return 100.0
+                            }
                             return 80.0
                         }
                         else{
+                            if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                                return (screenWidth + 60.0)
+                            }
                             return (screenWidth)
                         }
                     }
@@ -922,6 +931,9 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 
                 let label = cell.viewWithTag(500) as! UILabel
                 var word: String?
+                if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                    label.font = UIFont(name: "Bungee-Regular", size: 52)
+                }
                 
                 if (gameID != nil){
                     let wordTurn = self.turnsArray[n] as! NSObject
@@ -965,7 +977,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 let label = cell.viewWithTag(500) as! UILabel
                 let userLabel1 = view.viewWithTag(9) as! UILabel
                 var word: String?
-                
+               
                 
                 let votesLabel1 = view.viewWithTag(911) as! UILabel
 
@@ -1036,6 +1048,14 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     
                     
                 }
+                if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                    label.font = UIFont(name: "Bungee-Regular", size: 42)
+                    votesLabel1.font = UIFont(name: "Rajdhani", size: 24)
+                    userLabel1.font = UIFont(name: "Rajdhani", size: 18)
+                    cell.captionButtonOutlet1.titleLabel?.font = UIFont.boldSystemFont(ofSize: 32)
+                    cell.captionButtonOutlet0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 32)
+                }
+
                 cell.selectionStyle = UITableViewCellSelectionStyle.none
                 return cell
             }
@@ -1075,7 +1095,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     gameImage = self.decodedImage!
                     tempImage.image = gameImage!
                     
-                    userLabel2.text = imageTurn.value(forKey: "username")! as! String
+                    userLabel2.text = (imageTurn.value(forKey: "username")! as! String)
                 
                     
                     let votes = imageTurn.value(forKey: "votes")! as? Int
@@ -1128,6 +1148,12 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 }
 
                 cell.selectionStyle = UITableViewCellSelectionStyle.none
+                if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                    votesLabel2.font = UIFont(name: "Rajdhani", size: 24)
+                    userLabel2.font = UIFont(name: "Rajdhani", size: 18)
+                    cell.imageButtonOutlet1.titleLabel?.font = UIFont.boldSystemFont(ofSize: 32)
+                    cell.imageButtonOutlet0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 32)
+                }
 
                 return cell
                 

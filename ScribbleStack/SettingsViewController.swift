@@ -224,9 +224,7 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             print("dame")
             print(userID)
             
-            var teamTotal = 0
-            var teamCount = 0
-            var teamGameCount = 0
+          
             self.ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
                 print(snapshot)
                 if snapshot.hasChildren(){
@@ -236,9 +234,8 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                     self.sound = (snap["sound"] as! Bool)
                     let textField = self.view.viewWithTag(26) as! UITextField
                     textField.text = self.username
-                    let wordData = (snap["Words"] as! NSDictionary)
+                    _ = (snap["Words"] as! NSDictionary)
                     print("poop")
-                    print(snapshot.value)
                     //self.ownedWords = Array(wordData.allKeys)
                     // self.ownedWordsBool = Array(wordData.allValues)
                     print(self.ownedWords)
@@ -422,7 +419,7 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
     }
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int){
         
-        let header = view as! UITableViewHeaderFooterView
+        _ = view as! UITableViewHeaderFooterView
         view.tintColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
     }
     

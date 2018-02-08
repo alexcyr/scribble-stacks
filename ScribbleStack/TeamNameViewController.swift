@@ -126,12 +126,12 @@ class TeamNameViewController: UIViewController {
                 print(teamID)
                 ref.child("Teams").child(teamID).removeValue { (error, ref) in
                     if error != nil {
-                        print("error \(error)")
+                        print("error \(error ?? ": something went wrong" as! Error)")
                     }
                 }
                 ref.child("Users").child(userID).child("Teams").child(teamID).removeValue { (error, ref) in
                     if error != nil {
-                        print("error \(error)")
+                        print("error \(error ?? ": something went wrong" as! Error)")
                     }
                 }
                 teamID = nil
@@ -146,6 +146,10 @@ class TeamNameViewController: UIViewController {
             let controller = segue.destination as! InviteViewController
             controller.teamID = teamID
             controller.teamName = teamName.text
+            controller.coins = coins
+            let backItem = UIBarButtonItem()
+            backItem.title = ""
+            navigationItem.backBarButtonItem = backItem
         }
         if segue.identifier == "unwindToTeam" {
             let controller = segue.destination as! TeamViewController

@@ -181,7 +181,7 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
         group1.enter()
         if let user = Auth.auth().currentUser{
             userID = user.uid
-            wordDict = UserDefaults.standard.dictionary(forKey: "wordList") as! NSDictionary
+            wordDict = (UserDefaults.standard.dictionary(forKey: "wordList")! as NSDictionary)
 
         self.ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
             print(snapshot)
@@ -190,7 +190,6 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
                 self.coins = self.coins + (snap["currency"] as! Int)
                 let wordData = (snap["Words"] as! NSDictionary)
                 print("poop")
-                print(snapshot.value)
                 self.ownedWords = Array(wordData.allKeys)
                 self.ownedWordsBool = Array(wordData.allValues)
                 print(self.ownedWords)
@@ -305,6 +304,9 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
         let label = cell.viewWithTag(1000) as! UILabel
 
         label.text = getRandomWord[indexPath.row]
+        if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+            label.font = UIFont(name: "Bungee-Regular", size: 48)
+        }
         
         let borderBox = UIView(frame: cell.bounds)
         borderBox.layer.borderColor = UIColorFromRGB(rgbValue: 0xe5e5e5).cgColor
@@ -361,6 +363,20 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
         game.captions.append(Caption(phrase: label.text!))
         performSegue(withIdentifier: "ShowWordToDraw", sender: self)
         }
+    }
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
+    {
+        
+        if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+            return 120.0
+        }
+        
+            else{
+                
+                return 87.0
+            }
+       
+        
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

@@ -54,7 +54,7 @@ class publicGameViewController: UIViewController {
 }
     private func rotateView(targetView: UIImageView, duration: Double) {
         UIImageView.animate(withDuration: duration, delay: 0.0, options: .curveLinear, animations: {
-            targetView.transform = targetView.transform.rotated(by: CGFloat(M_PI))
+            targetView.transform = targetView.transform.rotated(by: CGFloat(Double.pi))
         }) { finished in
             self.rotateView(targetView: targetView, duration: duration)
         }

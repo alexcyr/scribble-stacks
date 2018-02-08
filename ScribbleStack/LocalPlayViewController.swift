@@ -19,9 +19,6 @@ class LocalPlayViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let screenSize = UIScreen.main.bounds
-        let screenWidth = screenSize.width
-        let screenHeight = screenSize.height
         
         let iphoneImage = self.view.viewWithTag(111) as! UIImageView
         let arrow1 = self.view.viewWithTag(112) as! UIImageView

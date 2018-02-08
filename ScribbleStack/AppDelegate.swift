@@ -61,9 +61,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                 application.isStatusBarHidden = true
             }
         }
-        if let inviteUrl = launchOptions?[UIApplicationLaunchOptionsKey.url] as? NSURL {
+        if (launchOptions?[UIApplicationLaunchOptionsKey.url] as? NSURL) != nil {
             //App opened from invite url
-            print("lol")
             self.handleFirebaseInviteDeeplink()
         }
         
@@ -103,7 +102,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                     var name: String = profile.displayName!
                     self.userID = uid
                     let stringInputArr = name.components(separatedBy: " ")
-                    name = stringInputArr[0] + " " + String(stringInputArr[1].characters.first!)
+                    name = stringInputArr[0] + " " + String(stringInputArr[1].prefix(1))
                     
                     print(name)
                     print(uid)
@@ -1000,7 +999,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         if Invites.handleUniversalLink(url, completion: { (invite, error) in
             
             let matchType = (invite?.matchType == ReceivedInviteMatchType.weak) ? "Weak" : "Strong"
-            print("\n------------------Invite received from: \(sourceApplication) Deeplink: \(invite?.deepLink)," + "Id: \(invite?.inviteId), Type: \(matchType)")
+            print("\n------------------Invite received from: \(String(describing: sourceApplication)) Deeplink: \(String(describing: invite?.deepLink))," + "Id: \(String(describing: invite?.inviteId)), Type: \(matchType)")
             /*
              if (matchType == "Strong") {
              print("\n-------------- Invite Deep Link = \(invite.deepLink)")
@@ -1030,11 +1029,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         if userActivity.webpageURL != nil{
             let url = userActivity.webpageURL
             userActivity.webpageURL = nil
-            print("hey a url!",url)
+            print("hey a url!",url!)
             if Invites.handleUniversalLink(url!, completion: { (invite, error) in
                 
                 let matchType = (invite?.matchType == ReceivedInviteMatchType.weak) ? "Weak" : "Strong"
-                print("\n------------------Invite received from:  Deeplink: \(invite?.deepLink)," + "Id: \(invite?.inviteId), Type: \(matchType)")
+                print("\n------------------Invite received from:  Deeplink: \(String(describing: invite?.deepLink))," + "Id: \(String(describing: invite?.inviteId)), Type: \(matchType)")
                 /*
                  if (matchType == "Strong") {
                  print("\n-------------- Invite Deep Link = \(invite.deepLink)")
@@ -1065,7 +1064,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         var teamName: String = ""
         print("tintin")
         if let user = Auth.auth().currentUser {
-            for profile in user.providerData {
+            for _ in user.providerData {
                 let uid = user.uid
                 print("Successfully logged into Firebase with Google", uid)
                 

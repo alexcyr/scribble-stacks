@@ -95,14 +95,12 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     func leftcellTapped(cell: RecentGamesButtonCell){
         let cellRow = self.tableView.indexPath(for: cell)!.row
-        let count = self.tableData.count
         self.selectedGame = recentGameID[(2 * cellRow)]
         performSegue(withIdentifier: "ViewGame", sender: self)
 
     }
     func rightcellTapped(cell: RecentGamesButtonCell){
         let cellRow = self.tableView.indexPath(for: cell)!.row
-        let count = self.tableData.count
         self.selectedGame = recentGameID[(2 * cellRow) + 1]
         performSegue(withIdentifier: "ViewGame", sender: self)
 
@@ -200,14 +198,11 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             print("poop")
             print(userID)
             
-            var teamTotal = 0
             var teamCount = 0
-            var teamGameCount = 0
             
             
             data = teamID!
             print(teamID)
-            var teamUsers: [Any?] = []
             print(teamID)
             print("beta")
             group2.enter()
@@ -250,7 +245,6 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             
             
             
-            var count = 0
             /*
              let query = self.ref?.child("Teams/\(self.data)/games").queryOrderedByValue().queryEqual(toValue: true)
              
@@ -370,7 +364,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
                                 let gameData = snapshot4.value as? NSDictionary
                                 let turnData = (gameData?["turns"]! as? NSDictionary)!
                                 let turnKeys = Array(turnData.allKeys) as AnyObject as! [String]
-                                var sortedArray = turnKeys.sorted()
+                                let sortedArray = turnKeys.sorted()
                                 var turns: [NSDictionary] = []
                                 for key in sortedArray{
                                     turns.append(turnData["\(key)"] as! NSDictionary)
@@ -380,10 +374,9 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
                                 print(turns)
                                 print("blue cheese")
                                 
-                                let turn = turns[1] as? NSDictionary
+                                let turn = turns[1] as NSDictionary
                                 
-                                let turnImage = (turn?["content"]! as? NSString)
-                                print(turnImage)
+                                let turnImage = (turn["content"]! as? NSString)
                                 self.recentGames.append(turnImage!)
                                 if self.recentGames.count == gameIDs.count{
                                     self.tableView.reloadData()
@@ -461,7 +454,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             return usernames.count
         }
         else {
-            var rowCount = recentGames.count
+            let rowCount = recentGames.count
             if (rowCount%2) == 0{
                 return (rowCount/2)
             }
@@ -625,7 +618,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
             print(recentGames.count)
             print(recentGames)
-            if let imageDate = recentGames[2 * n] as NSString!{
+            if (recentGames[2 * n] as NSString!) != nil{
             self.base64String = recentGames[2 * n] as NSString!
             var decodedData = NSData(base64Encoded: self.base64String as String, options: NSData.Base64DecodingOptions())
                 if decodedData != nil{
@@ -714,7 +707,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 print("\(error.localizedDescription)")
             } else {
                 // User Successfully signed in.
-                if let name = user.profile.name {
+                if (user.profile.name) != nil {
                     print("Signed in")
                 } else {
                     print("Signed in, profile name is not set")
@@ -744,7 +737,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
         // [END toggle_auth]
         // [START invite_finished]
-        func inviteFinished(withInvitations invitationIds: [Any], error: Error?) {
+    private func inviteFinished(withInvitations invitationIds: [Any], error: Error?) {
             if let error = error {
                 print("Failed: " + error.localizedDescription)
             } else {

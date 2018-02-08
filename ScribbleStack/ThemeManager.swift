@@ -64,7 +64,7 @@ class ThemeManager {
         // Sets Bar's Shadow Image (Color) //
         UINavigationBar.appearance().shadowImage = UIImage.imageWithColor(color: darkBlue)
         
-        let proxyBodyLabel = UILabel.appearance()
+        _ = UILabel.appearance()
         //proxyBodyLabel.font = Styles.bodyFont
         
         let proxySegmentedControl = UISegmentedControl.appearance()

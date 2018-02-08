@@ -56,6 +56,8 @@
 	<true/>
 	<key>NSContactsUsageDescription</key>
 	<string>Allow Scribble Stack access to your contacts to invite friends to your party.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Allow Scribble Stacks to save or send snapshot of your game.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Make it easier for friends to find you</string>
 	<key>UIAppFonts</key>
@@ -83,7 +85,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Allow Scribble Stacks to save or send snapshot of your game.</string>
 </dict>
 </plist>

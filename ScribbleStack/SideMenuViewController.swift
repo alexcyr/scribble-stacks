@@ -35,7 +35,7 @@ class SideMenuViewController: UITableViewController  {
             
           
             
-            let controller = segue.destination as! ViewController
+            _ = segue.destination as! ViewController
             GIDSignIn.sharedInstance().signOut()
             try! Auth.auth().signOut()
             
@@ -46,6 +46,15 @@ class SideMenuViewController: UITableViewController  {
             
             
             let controller = segue.destination as! HowToViewController
+            controller.coins = coins
+            
+            
+        }
+        if segue.identifier == "SideMenuToAbout" {
+            
+            
+            
+            let controller = segue.destination as! AboutViewController
             controller.coins = coins
             
             

@@ -23,7 +23,7 @@
 import UIKit
 
 public extension String {
-    public var length: Int { return self.characters.count }
+    public var length: Int { return self.count }
     
     public func toURL() -> NSURL? {
         return NSURL(string: self)
@@ -43,7 +43,7 @@ public func htmlToAttributedString(text: String) -> NSAttributedString! {
 }
 
 public func degreesToRadians(degrees: CGFloat) -> CGFloat {
-    return degrees * CGFloat(M_PI / 180)
+    return degrees * CGFloat(Double.pi / 180)
 }
 
 public func delay(delay:Double, closure: @escaping ()->()) {
@@ -66,13 +66,13 @@ public extension UIColor {
         
         if hex.hasPrefix("#") {
             let index = hex.index(hex.startIndex, offsetBy: 1)
-            hex         = hex.substring(from: index)
+            hex         = String(hex[index...])
         }
         
         let scanner = Scanner(string: hex)
         var hexValue: CUnsignedLongLong = 0
         if scanner.scanHexInt64(&hexValue) {
-            switch (hex.characters.count) {
+            switch (hex.count) {
             case 3:
                 red   = CGFloat((hexValue & 0xF00) >> 8)       / 15.0
                 green = CGFloat((hexValue & 0x0F0) >> 4)       / 15.0
@@ -202,7 +202,7 @@ public func timeAgoSinceDate(date: Date, numericDates: Bool) -> String {
             return "1w"
         }
     } else if (day >= 2) {
-        return "\(components.day)d"
+        return "\(components.day ?? 0)d"
     } else if (day >= 1){
         if (numericDates){
             return "1d"
