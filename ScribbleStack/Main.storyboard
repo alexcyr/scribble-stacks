@@ -1766,8 +1766,8 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                                             <constraint firstAttribute="height" constant="4" id="GsM-Pl-Qk6"/>
                                         </constraints>
                                     </view>
-                                    <button contentMode="scaleToFill" horizontalCompressionResistancePriority="749" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QVb-Gx-hNj">
-                                        <rect key="frame" x="96" y="376" width="24" height="61"/>
+                                    <button tag="755" contentMode="scaleAspectFill" horizontalCompressionResistancePriority="749" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QVb-Gx-hNj">
+                                        <rect key="frame" x="96" y="377" width="24" height="60"/>
                                         <accessibility key="accessibilityConfiguration">
                                             <accessibilityTraits key="traits" button="YES" notEnabled="YES"/>
                                         </accessibility>
@@ -1869,7 +1869,7 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VFI-Vw-cqk">
-                                        <rect key="frame" x="160" y="389.5" width="0.0" height="21"/>
+                                        <rect key="frame" x="160" y="389" width="0.0" height="21"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="21" id="jiA-39-atm"/>
                                         </constraints>
@@ -1878,7 +1878,7 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c98-ww-dKV">
-                                        <rect key="frame" x="186" y="389.5" width="126" height="35"/>
+                                        <rect key="frame" x="186" y="389" width="126" height="35"/>
                                         <color key="backgroundColor" red="0.845999053" green="0.1967511888" blue="0.34358297970000001" alpha="1" colorSpace="calibratedRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="35" id="u7y-Jt-rs2"/>
@@ -1892,7 +1892,7 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rfv-ym-IgG">
-                                        <rect key="frame" x="136" y="379.5" width="32" height="55"/>
+                                        <rect key="frame" x="136" y="379" width="32" height="55"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="32" id="qg9-xI-C3S"/>
                                         </constraints>
@@ -2512,7 +2512,7 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                                     <constraint firstAttribute="width" secondItem="cxv-hh-Qaa" secondAttribute="height" multiplier="1:1" id="20W-xa-6h6"/>
                                 </constraints>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="toQ-Z5-48j">
+                            <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="7" translatesAutoresizingMaskIntoConstraints="NO" id="toQ-Z5-48j">
                                 <rect key="frame" x="15" y="400" width="290" height="98"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="98" id="KEk-Nt-wya"/>
@@ -3685,13 +3685,13 @@ X</string>
         <image name="globe2-yellow" width="306" height="306"/>
         <image name="howTo1" width="400" height="153"/>
         <image name="iphone" width="340" height="340"/>
-        <image name="letter_icon" width="88" height="89"/>
+        <image name="letter_icon" width="44" height="44"/>
         <image name="lrgLetter" width="300" height="300"/>
-        <image name="newGameA" width="324" height="173"/>
-        <image name="newGameB" width="324" height="173"/>
+        <image name="newGameA" width="400" height="213"/>
+        <image name="newGameB" width="400" height="213"/>
         <image name="pencil" width="250" height="250"/>
-        <image name="pencil_icon" width="88" height="89"/>
-        <image name="scribble-logo" width="188" height="188"/>
+        <image name="pencil_icon" width="44" height="44"/>
+        <image name="scribble-logo" width="400" height="400"/>
         <image name="tab_1a" width="25" height="25"/>
         <image name="tab_1b" width="25" height="25"/>
         <image name="tab_2a" width="25" height="25"/>
@@ -3700,14 +3700,14 @@ X</string>
         <image name="tab_3b" width="25" height="25"/>
         <image name="tab_4a" width="25" height="25"/>
         <image name="tab_4b" width="25" height="25"/>
-        <image name="tableFlipa1" width="267" height="92"/>
-        <image name="tableFlipb1" width="166" height="41"/>
+        <image name="tableFlipa1" width="400" height="138"/>
+        <image name="tableFlipb1" width="400" height="99"/>
         <image name="team1" width="400" height="400"/>
         <image name="team2" width="400" height="400"/>
-        <image name="trashcan" width="38" height="43"/>
+        <image name="trashcan" width="44" height="50"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="sNc-at-Xv1"/>
+        <segue reference="oza-qM-r9X"/>
         <segue reference="Hju-Tx-ico"/>
         <segue reference="xbr-aY-e8Z"/>
         <segue reference="4Ng-8D-SuH"/>

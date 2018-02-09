@@ -506,9 +506,16 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         if indexPath.section < 1{
         cell.leftButtonOutlet.setTitle("\(leftTitle)", for: .normal)
             cell.leftButtonOutlet.setBackgroundImage(cellTextLeft.image, for: .normal)
-      
-
-        cell.leftLabelOutlet.text = "\(leftTitle) - \(leftValue)💰"
+            let attachment = NSTextAttachment()
+            attachment.bounds = CGRect(x: -1, y: -2,width: 15,height: 15);
+            attachment.image = UIImage(named: "bobCoin.png")
+            let attachmentString = NSAttributedString(attachment: attachment)
+            var attributes = [NSAttributedStringKey: AnyObject]()
+            attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0x000000)
+            let myString = NSMutableAttributedString(string: "\(leftTitle) - \(leftValue) ", attributes: attributes)
+            myString.append(attachmentString)
+        
+        cell.leftLabelOutlet.attributedText = myString
         let cellOwned = cellTextLeft.owned as Bool
             if cellOwned{
                 cell.leftButtonOutlet.layer.borderWidth = 8
@@ -528,7 +535,18 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
             let rightValue = cellTextRight.value
             if indexPath.section < 1{
-                cell.rightLabelOutlet.text = "\(rightTitle) - \(rightValue)💰"
+                cell.leftButtonOutlet.setTitle("\(leftTitle)", for: .normal)
+                cell.leftButtonOutlet.setBackgroundImage(cellTextLeft.image, for: .normal)
+                let attachment = NSTextAttachment()
+                attachment.bounds = CGRect(x: -1, y: -2,width: 15,height: 15);
+                attachment.image = UIImage(named: "bobCoin.png")
+                let attachmentString = NSAttributedString(attachment: attachment)
+                var attributes = [NSAttributedStringKey: AnyObject]()
+                attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0x000000)
+                let myString = NSMutableAttributedString(string: "\(rightTitle) - \(rightValue) ", attributes: attributes)
+                myString.append(attachmentString)
+                
+                cell.rightLabelOutlet.attributedText = myString
                 cell.rightButtonOutlet.setTitle("\(rightTitle)", for: .normal)
                 cell.rightButtonOutlet.setBackgroundImage(cellTextRight.image, for: .normal)
                 
@@ -556,7 +574,16 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 
                 let rightValue = cellTextRight.value
                 if indexPath.section < 1{
-                    cell.rightLabelOutlet.text = "\(rightTitle) - \(rightValue)💰"
+                    let attachment = NSTextAttachment()
+                    attachment.bounds = CGRect(x: -1, y: -2,width: 15,height: 15);
+                    attachment.image = UIImage(named: "bobCoin.png")
+                    let attachmentString = NSAttributedString(attachment: attachment)
+                    var attributes = [NSAttributedStringKey: AnyObject]()
+                    attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0x000000)
+                    let myString = NSMutableAttributedString(string: "\(rightTitle) - \(rightValue) ", attributes: attributes)
+                    myString.append(attachmentString)
+                    
+                    cell.rightLabelOutlet.attributedText = myString
                     cell.rightButtonOutlet.setTitle("\(rightTitle)", for: .normal)
                     cell.rightButtonOutlet.setBackgroundImage(cellTextRight.image, for: .normal)
                     

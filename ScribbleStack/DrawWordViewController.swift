@@ -203,6 +203,10 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
         createStartView()
         rotateView(targetView: burst, duration: 20.0)
 
+        let button = self.view.viewWithTag(755) as! UIButton
+
+        button.imageView!.contentMode = UIViewContentMode.scaleAspectFit
+        
         let screenSize: CGRect = UIScreen.main.bounds
 
         self.tempDrawImage.frame = CGRect(x: 0, y: 48, width: screenSize.width, height: screenSize.width)
