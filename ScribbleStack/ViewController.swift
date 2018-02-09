@@ -56,7 +56,7 @@ class ViewController: UIViewController,  GIDSignInUIDelegate {
     
     fileprivate func setupGoogleButtons(){
         let googleButton = GIDSignInButton()
-        googleButton.frame = CGRect(x: 16, y: 166 + 66, width: view.frame.width - 32, height:50)
+        googleButton.frame = CGRect(x: 16, y: view.frame.height / 2, width: view.frame.width - 32, height:50)
         googleButton.addTarget(self, action: #selector(ViewController.googlePressed(button:)), for: .touchUpInside)
         googleButton.tag = 222
         view.addSubview(googleButton)
