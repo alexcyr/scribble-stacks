@@ -332,9 +332,10 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
              }}
              
              })*/
-             group2.notify(queue: DispatchQueue.main, execute: {
+                print("step")
             if self.recentGames.isEmpty{
-                
+                print("one")
+
                 let recentQuery = self.ref?.child("Teams/\(self.data)/games").queryOrderedByValue().queryEqual(toValue: false).queryLimited(toLast: 10)
                 
                 recentQuery?.observeSingleEvent(of: .value, with: { (snapshot2) in
@@ -386,7 +387,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     }
                 })
             }
-            })
+            
             
         }
         
@@ -531,7 +532,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             return 35
         }
         else{
-            return (UIScreen.main.bounds.width/2)
+            return 35
         }
     }
     
@@ -560,7 +561,8 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     return 25.0
             }
             else{
-                return 160.0
+                return (UIScreen.main.bounds.width / 2)
+                
             }
         
          

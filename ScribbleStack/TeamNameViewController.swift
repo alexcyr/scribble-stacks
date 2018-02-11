@@ -21,6 +21,8 @@ class TeamNameViewController: UIViewController {
     var team: Team?
     var coins: Int?
      
+    @IBOutlet weak var buttonOutlet: UIButton!
+    @IBOutlet weak var viewTitle: UILabel!
     
     @IBOutlet weak var teamName: UITextField!
     
@@ -113,6 +115,15 @@ class TeamNameViewController: UIViewController {
             newBackButton.setTitleTextAttributes([NSAttributedStringKey.font:font], for: .normal)
         }
         self.navigationItem.rightBarButtonItem = newBackButton
+        
+        if changeName == true{
+            self.view.backgroundColor = UIColor.white
+            viewTitle.textColor = UIColor.black
+            viewTitle.text = "Change your team name"
+            view.viewWithTag(21)?.backgroundColor = UIColorFromRGB(rgbValue: 0xF9A919)
+            buttonOutlet.backgroundColor = UIColorFromRGB(rgbValue: 0x01A7B9)
+            teamName.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
+        }
    
     }
     

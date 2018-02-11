@@ -16,6 +16,7 @@ class LocalPlayViewController: UIViewController {
     
 
     
+    @IBOutlet weak var phoneWidthConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,7 +61,9 @@ class LocalPlayViewController: UIViewController {
         group2.motionEffects = [horizontalMotionEffect2, verticalMotionEffect2]
         arrow1.addMotionEffect(group2)
         arrow2.addMotionEffect(group2)
-
+        if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+            phoneWidthConstraint.constant = 700.0
+        }
 
         
 }

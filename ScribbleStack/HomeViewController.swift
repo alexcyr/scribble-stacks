@@ -190,6 +190,8 @@ populateTable()
                 print(snapshot)
                 if snapshot.hasChildren(){
                     let snap = snapshot.value! as! NSDictionary
+                    let dbCoins = (snap["currency"] as! Int)
+                    self.coins = self.coins + dbCoins
                     print("poop")
                     
                     if let teamsData = (snap["Teams"] as? NSDictionary){

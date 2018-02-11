@@ -188,58 +188,37 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
             if snapshot.hasChildren(){
                 let snap = snapshot.value! as! NSDictionary
                 self.coins = self.coins + (snap["currency"] as! Int)
-                let wordData = (snap["Words"] as! NSDictionary)
-                print("poop")
-                self.ownedWords = Array(wordData.allKeys)
-                self.ownedWordsBool = Array(wordData.allValues)
-                print(self.ownedWords)
-                print(self.ownedWordsBool)
-                print("rocka")
-                var count = 0
-                for _ in self.ownedWords{
-                    let ownedBool = self.ownedWordsBool[count] as! Bool
-                    if ownedBool == false{
-                        self.ownedWordsBool.remove(at: count)
-                        self.ownedWords.remove(at: count)
-                        count = count - 1
-                    }
-                    count = count + 1
-                    print(count)
-                    print(self.ownedWords.count)
-                    print("woah now")
-                    if count == self.ownedWords.count{
-                        group1.leave()
-                    }
-                }
+                group1.leave()
             }
         })
         
         }
         else{
             wordDict = self.loadJson(forFilename: "words") 
-            let wordData = UserDefaults.standard.dictionary(forKey: "ownedWords")!
-            self.ownedWords = Array(wordData.keys)
-            self.ownedWordsBool = Array(wordData.values)
-            print(self.ownedWords)
-            print(self.ownedWordsBool)
-            print("rocka")
-            var count = 0
-            for _ in self.ownedWords{
-                let ownedBool = self.ownedWordsBool[count] as! Bool
-                if ownedBool == false{
-                    self.ownedWordsBool.remove(at: count)
-                    self.ownedWords.remove(at: count)
-                    count = count - 1
-                }
-                count = count + 1
-                print(count)
-                print(self.ownedWords.count)
-                print("woah now")
-                if count == self.ownedWords.count{
-                    group1.leave()
-                }
-            }
+            group1.leave()
             
+        }
+        let wordData = UserDefaults.standard.dictionary(forKey: "ownedWords")!
+        self.ownedWords = Array(wordData.keys)
+        self.ownedWordsBool = Array(wordData.values)
+        print(self.ownedWords)
+        print(self.ownedWordsBool)
+        print("rocka")
+        var count = 0
+        for _ in self.ownedWords{
+            let ownedBool = self.ownedWordsBool[count] as! Bool
+            if ownedBool == false{
+                self.ownedWordsBool.remove(at: count)
+                self.ownedWords.remove(at: count)
+                count = count - 1
+            }
+            count = count + 1
+            print(count)
+            print(self.ownedWords.count)
+            print("woah now")
+            if count == self.ownedWords.count{
+                
+            }
         }
         
         group1.notify(queue: DispatchQueue.main, execute: {

@@ -141,6 +141,7 @@ class BufferScreenViewController: UIViewController, NVActivityIndicatorViewable{
             else if(self.readyOutlet.currentTitle == "Search"){
                 let found = self.view.viewWithTag(9) as! UILabel
 found.text = ""
+                activityIndicator.startAnimating()
                 self.readyOutlet.setTitle("READY", for: .normal)
                 self.readyOutlet.isHidden = true
                 noGamesOutlet.isHidden = true
@@ -1093,8 +1094,8 @@ found.text = ""
         }
         if segue.identifier == "BufferToHome" {
           
-            let DestViewController = segue.destination as! UINavigationController
-            let targetController = DestViewController.topViewController as! TabBarViewController
+            //let DestViewController = segue.destination as! UINavigationController
+            //let targetController = DestViewController.topViewController as! TabBarViewController
             
             
             

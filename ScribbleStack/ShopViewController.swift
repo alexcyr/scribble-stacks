@@ -390,7 +390,7 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     var n = 0
                     for words in self.wordGroups{
                         let word = words as! String
-                        if word == "Base"{
+                        if word == "Easy" || word == "Medium" || word == "Hard"{
                             self.wordGroups.remove(at: n)
                             n -= 1
                         }
@@ -402,7 +402,10 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                             let decodedData = NSData(base64Encoded: self.base64String as String, options: NSData.Base64DecodingOptions())
                             let wordImage = UIImage(data: decodedData! as Data)!
                           
-                            let wordPack = ShopItem(name: "", owned: false, value: 50, image: wordImage)
+                            let wordPack = ShopItem(name: "", owned: false, value: 100, image: wordImage)
+                            if word.range(of:"Expansion") != nil{
+                                wordPack.value = 150
+                            }
                         wordPack.name = word
                         for x in self.ownedWords{
                             let owned = x as! String
@@ -471,10 +474,15 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print("section count")
+        if section < 1{
         print(tableData[section].count)
         let count = tableData[section].count
         let rowCount = (count/2) + (count%2)
         return rowCount
+        }
+        else{
+            return 0
+        }
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let n = indexPath.row
@@ -505,6 +513,9 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         if indexPath.section < 1{
         cell.leftButtonOutlet.setTitle("\(leftTitle)", for: .normal)
+            cell.leftButtonOutlet.titleLabel?.numberOfLines = 1
+            cell.leftButtonOutlet.titleLabel?.adjustsFontSizeToFitWidth = true
+            cell.leftButtonOutlet.titleLabel?.lineBreakMode = NSLineBreakMode.byClipping
             cell.leftButtonOutlet.setBackgroundImage(cellTextLeft.image, for: .normal)
             let attachment = NSTextAttachment()
             attachment.bounds = CGRect(x: -1, y: -2,width: 15,height: 15);
@@ -519,7 +530,7 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let cellOwned = cellTextLeft.owned as Bool
             if cellOwned{
                 cell.leftButtonOutlet.layer.borderWidth = 8
-                cell.leftButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xF9A919).cgColor
+                cell.leftButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xD83258).cgColor
             }
         }
         else{
@@ -537,6 +548,9 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
             if indexPath.section < 1{
                 cell.leftButtonOutlet.setTitle("\(leftTitle)", for: .normal)
                 cell.leftButtonOutlet.setBackgroundImage(cellTextLeft.image, for: .normal)
+                cell.leftButtonOutlet.titleLabel?.numberOfLines = 1
+                cell.leftButtonOutlet.titleLabel?.adjustsFontSizeToFitWidth = true
+                cell.leftButtonOutlet.titleLabel?.lineBreakMode = NSLineBreakMode.byClipping
                 let attachment = NSTextAttachment()
                 attachment.bounds = CGRect(x: -1, y: -2,width: 15,height: 15);
                 attachment.image = UIImage(named: "bobCoin.png")
@@ -549,12 +563,15 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 cell.rightLabelOutlet.attributedText = myString
                 cell.rightButtonOutlet.setTitle("\(rightTitle)", for: .normal)
                 cell.rightButtonOutlet.setBackgroundImage(cellTextRight.image, for: .normal)
+                cell.rightButtonOutlet.titleLabel?.numberOfLines = 1
+                cell.rightButtonOutlet.titleLabel?.adjustsFontSizeToFitWidth = true
+                cell.rightButtonOutlet.titleLabel?.lineBreakMode = NSLineBreakMode.byClipping
                 
 
                 let cellOwned = cellTextRight.owned as Bool
                 if cellOwned{
                     cell.rightButtonOutlet.layer.borderWidth = 8
-                    cell.rightButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xF9A919).cgColor
+                    cell.rightButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xD83258).cgColor
                     
                 }
             }
@@ -586,12 +603,15 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     cell.rightLabelOutlet.attributedText = myString
                     cell.rightButtonOutlet.setTitle("\(rightTitle)", for: .normal)
                     cell.rightButtonOutlet.setBackgroundImage(cellTextRight.image, for: .normal)
+                    cell.rightButtonOutlet.titleLabel?.numberOfLines = 1
+                    cell.rightButtonOutlet.titleLabel?.adjustsFontSizeToFitWidth = true
+                    cell.rightButtonOutlet.titleLabel?.lineBreakMode = NSLineBreakMode.byClipping
                     
                    
                     let cellOwned = cellTextRight.owned as Bool
                     if cellOwned{
                         cell.rightButtonOutlet.layer.borderWidth = 8
-                        cell.rightButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xF9A919).cgColor
+                        cell.rightButtonOutlet.layer.borderColor = UIColorFromRGB(rgbValue: 0xD83258).cgColor
                         
                     }
                 }
@@ -613,7 +633,7 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     
-    let headerTitles = ["Word Expansions", "Purchase Coins"]
+    let headerTitles = ["Word Expansions", ""]
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
@@ -634,12 +654,12 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
         view.tintColor = UIColorFromRGB(rgbValue: 0xffffff)
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 60;
+        return 50;
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
         
-       return (screenWidth/2) + 30
+       return (screenWidth/2) + 10.0
         
     }
     

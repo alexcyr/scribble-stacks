@@ -798,7 +798,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 ref?.child("Games/\(gameID!)").observeSingleEvent(of: .value, with: { (snapshot) in
                     let data = snapshot.value as? NSDictionary
                     let team = data?["team"] as! String
-                    
+                    let gameStatus = data?["status"]! as? String
                     self.teamID = team
                     
                     let turnID = self.turnsArray[0] as! NSObject
@@ -821,8 +821,10 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     print(initialUser)
                     print("potato pancakes")
                     if userID == initialUser{
+                        if gameStatus != "didFinish"{
                         print("banana pancakes")
                         self.ref?.child("Teams/\(self.teamID!)/teamInfo/users/\(userID)/activeGame").setValue(false)
+                        }
                         
                     }
                     
@@ -1052,8 +1054,8 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     label.font = UIFont(name: "Bungee-Regular", size: 42)
                     votesLabel1.font = UIFont(name: "Rajdhani", size: 24)
                     userLabel1.font = UIFont(name: "Rajdhani", size: 18)
-                    cell.captionButtonOutlet1.titleLabel?.font = UIFont.boldSystemFont(ofSize: 32)
-                    cell.captionButtonOutlet0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 32)
+                
+                
                 }
 
                 cell.selectionStyle = UITableViewCellSelectionStyle.none
@@ -1151,8 +1153,8 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                 if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
                     votesLabel2.font = UIFont(name: "Rajdhani", size: 24)
                     userLabel2.font = UIFont(name: "Rajdhani", size: 18)
-                    cell.imageButtonOutlet1.titleLabel?.font = UIFont.boldSystemFont(ofSize: 32)
-                    cell.imageButtonOutlet0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 32)
+                    cell.imageButtonOutlet1.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
+                    cell.imageButtonOutlet0.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
                 }
 
                 return cell

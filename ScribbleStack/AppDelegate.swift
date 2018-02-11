@@ -46,7 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             userDefaults.setValue(ownedWords, forKey: "ownedWords")
             
         }
-        let ownedWords: NSDictionary = ["Base": true]
+        let ownedWords: NSDictionary = ["Easy": true, "Medium": false, "Hard": false]
         userDefaults.setValue(ownedWords, forKey: "ownedWords")
        
         window2 = UIWindow(frame: UIScreen.main.bounds)
@@ -79,6 +79,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         if let err = error{
             print("Failed to log into Google", err)
         }
+        else{
         
         
         print("Successfully logged into Google", user)
@@ -683,7 +684,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                                     print("sucess")
                                 }
                             }
-                            self.ref.child("Users").child(self.userID).setValue(["username": name, "currency": 0,"sound": true,"Words": ["Base": true]])
+                            self.ref.child("Users").child(self.userID).setValue(["username": name, "currency": 0,"sound": true,"Words": ["Easy": true, "Medium": false, "Hard": false]])
                             
                             
                             
@@ -700,6 +701,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             print("Successfully logged in with our user: ", user ?? "")
             
         })
+        }
     }
     
     func randomSequenceGenerator(min: Int , max: Int) -> () -> Int {
