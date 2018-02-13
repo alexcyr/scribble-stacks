@@ -1,6 +1,6 @@
 //
 //  SettingsViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 4/8/17.
 //  Copyright © 2017 Alex Cyr. All rights reserved.
@@ -280,6 +280,7 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                 self.tableWordsArray.append(tableWord)
                 count = count + 1
                 if count == self.ownedWords.count{
+                    
                     group2.leave()
                 }
             }
@@ -287,7 +288,25 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             
             
             group2.notify(queue: DispatchQueue.main, execute: {
-                
+               
+                for index in 0...(self.tableWordsArray.count-1){
+                    if self.tableWordsArray[index].name == "Hard"{
+                        let word = self.tableWordsArray.remove(at: index)
+                        self.tableWordsArray.insert(word, at: 0)
+                    }
+                }
+                for index in 0...(self.tableWordsArray.count-1){
+                    if self.tableWordsArray[index].name == "Medium"{
+                        let word = self.tableWordsArray.remove(at: index)
+                        self.tableWordsArray.insert(word, at: 0)
+                    }
+                }
+                for index in 0...(self.tableWordsArray.count-1){
+                    if self.tableWordsArray[index].name == "Easy"{
+                        let word = self.tableWordsArray.remove(at: index)
+                        self.tableWordsArray.insert(word, at: 0)
+                    }
+                }
                 self.tableView.reloadData()
                 print(self.tableData)
             })

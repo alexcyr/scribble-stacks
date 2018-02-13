@@ -1,6 +1,6 @@
 //
 //  HomeViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 11/15/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -10,6 +10,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseDatabase
 import Fakery
+import GoogleMobileAds
 
 extension UITableView {
     func reloadData(with animation: UITableViewRowAnimation) {
@@ -44,6 +45,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var nextViewNumber = 0
     var rando: String?
     
+    @IBOutlet weak var bannerView: GADBannerView!
     
     
     @IBAction func friends(_ sender: AnyObject) {
@@ -90,13 +92,26 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var refreshControl: UIRefreshControl!
    
     @objc func refresh(sender:AnyObject) {
-populateTable()
+        populateTable()
         refreshControl.endRefreshing()
        
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        #if FREE
+            bannerView.adSize = kGADAdSizeSmartBannerPortrait
+            bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+            bannerView.rootViewController = self
+            bannerView.load(GADRequest())
+            
+            
+        #else
+            bannerView.frame.size.height = 0
+            bannerView.isHidden = true
+            print("not free")
+        #endif
+        
         NotificationCenter.default.addObserver(self, selector:#selector(populateTable), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
 
         
@@ -849,13 +864,12 @@ populateTable()
             }
             
         }
-        if segue.identifier == "testEndSegue" {
+        if segue.identifier == "HomeToHowTo" {
             
-            let gameID = "-KsGfKZeLwB1wk1ye7-h"
             
-            let controller = segue.destination as! EndGameViewController
+            let controller = segue.destination as! HowToViewController
             
-                controller.gameID = gameID
+                controller.coins = self.coins
    
             
         }

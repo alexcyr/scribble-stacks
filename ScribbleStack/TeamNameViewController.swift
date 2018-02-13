@@ -1,6 +1,6 @@
 //
 //  TeamNameViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 11/20/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -54,6 +54,27 @@ class TeamNameViewController: UIViewController {
                         let nsName = NSString(string: name!)
                         self.ref.child("Teams/\(teamID!)/teamInfo/team").setValue("\(nsName)")
                         self.team!.teamName = name!
+                        
+                        var localCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+                        var total = 20
+                        var dbCoins = self.coins! - localCoins
+                        if(dbCoins >= 20){
+                            dbCoins = dbCoins - total
+                        }
+                        else{
+                            
+                            total = total - dbCoins
+                            dbCoins = 0
+                            localCoins = localCoins - total
+                            UserDefaults.standard.setValue(localCoins, forKey: "earnedCoins")
+                            
+                        }
+                        self.coins = localCoins + dbCoins
+                        if Auth.auth().currentUser != nil{
+                            let userID: String = user.uid
+                            self.ref?.child("Users/\(userID)/currency").setValue(dbCoins)
+                        }
+                        
                         performSegue(withIdentifier: "unwindToTeam", sender: self)
                     }
                 }
@@ -166,6 +187,7 @@ class TeamNameViewController: UIViewController {
             let controller = segue.destination as! TeamViewController
             controller.teamID = teamID
             controller.team = self.team
+            controller.coins = self.coins
         }
     }
 

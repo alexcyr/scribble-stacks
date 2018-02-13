@@ -1,6 +1,6 @@
 //
 //  AboutViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 2/7/18.
 //  Copyright © 2018 Alex Cyr. All rights reserved.
@@ -14,7 +14,7 @@ class AboutViewController: UIViewController{
     var coins: Int?
   
     @IBAction func emailButton(_ sender: Any) {
-        let email = "scribblestacks@gmail.com"
+        let email = "ScribbleStacks@gmail.com"
         if let url = NSURL(string: "mailto:\(email)") {
             UIApplication.shared.openURL(url as URL)
         }

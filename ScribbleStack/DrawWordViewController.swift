@@ -1,6 +1,6 @@
 //
 //  DrawWordViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 10/20/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -10,6 +10,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseDatabase
 import NVActivityIndicatorView
+import GoogleMobileAds
 
 extension UIImageView{
     func rotate() {
@@ -49,6 +50,8 @@ class DrawWordViewController: UIViewController, NVActivityIndicatorViewable {
     var blue: CGFloat = 0.0
     var opacity: CGFloat = 1.0
     var blankImage: UIImage?
+    var interstitial: GADInterstitial!
+
     
     let colors: [(CGFloat, CGFloat, CGFloat)] = [
         (0, 0, 0),
@@ -467,6 +470,21 @@ print("size",self.tempDrawImage.frame.size)
     func drawingDone(){
         self.view.backgroundColor = UIColorFromRGB(rgbValue: 0x01A7B9)
 
+        #if FREE
+            if gameID != nil {
+            var gameAdCount = UserDefaults.standard.integer(forKey: "gameAdCount")
+            gameAdCount += 1
+                print("adCount: ", gameAdCount)
+            UserDefaults.standard.setValue(gameAdCount, forKey: "gameAdCount")
+                if gameAdCount >= 4 {
+                    interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+                    let request = GADRequest()
+                    interstitial.load(request)
+                    UserDefaults.standard.setValue(0, forKey: "gameAdCount")
+
+                }
+            }
+        #endif
         
         didStart = false
        
@@ -655,6 +673,7 @@ print("size",self.tempDrawImage.frame.size)
             let controller = segue.destination as! BufferScreenViewController
             if teamID != nil{
                 controller.teamID = teamID
+                controller.interstitial = interstitial
             }
             else{
             controller.game = game

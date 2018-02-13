@@ -44,7 +44,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-ScribbleStack.xcscheme</key>
+		<key>Pods-ScribbleStacks.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-ScribbleStacksFree.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

@@ -8,7 +8,8 @@
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)com.BigcatCreativeLabs.ScribbleStack</string>
+		<string>$(AppIdentifierPrefix)com.bigcatcreativelabs.scribblestacksfree</string>
+		<string>$(AppIdentifierPrefix)com.bigcatcreativelabs.scribblestacksfree</string>
 	</array>
 </dict>
 </plist>

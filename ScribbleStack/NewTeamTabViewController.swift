@@ -1,6 +1,6 @@
 //
-//  LocalPlayViewController.swift
-//  ScribbleStack
+//  NewTeamTabViewController.swift
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 10/16/17.
 //  Copyright © 2017 Alex Cyr. All rights reserved.
@@ -8,6 +8,7 @@
 
 import UIKit
 import FirebaseAuth
+import GoogleMobileAds
 
 
 
@@ -17,6 +18,7 @@ class NewTeamTabViewController: UIViewController {
     var loggedIn = false
     var coins: Int?
     
+    @IBOutlet weak var bannerView: GADBannerView!
     @IBAction func newTeamButton(_ sender: Any) {
         if loggedIn == false{
             let loginAlert = UIAlertController(title: "Not Logged In", message: "You must be logged in to create a new team.", preferredStyle: UIAlertControllerStyle.alert)
@@ -31,7 +33,20 @@ class NewTeamTabViewController: UIViewController {
     @IBOutlet weak var buttonOutlet: UIButton!
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
+        #if FREE
+            bannerView.adSize = kGADAdSizeSmartBannerPortrait
+            bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+            bannerView.rootViewController = self
+            bannerView.load(GADRequest())
+            
+            
+        #else
+            bannerView.frame.size.height = 0
+            bannerView.isHidden = true
+            print("not free")
+        #endif
         if Auth.auth().currentUser != nil{
             loggedIn = true
 
@@ -41,7 +56,7 @@ class NewTeamTabViewController: UIViewController {
             buttonOutlet.backgroundColor = UIColorFromRGB(rgbValue: 0xF1F1F2)
             loggedIn = false
         }
-      
+      /*
         let team1 = self.view.viewWithTag(111) as! UIImageView
         let team2 = self.view.viewWithTag(112) as! UIImageView
         
@@ -78,7 +93,7 @@ class NewTeamTabViewController: UIViewController {
         
         group2.motionEffects = [horizontalMotionEffect2, verticalMotionEffect2]
         team2.addMotionEffect(group2)
-        
+        */
         
         
     }

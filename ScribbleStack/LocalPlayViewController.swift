@@ -1,12 +1,13 @@
 //
 //  LocalPlayViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 10/16/17.
 //  Copyright © 2017 Alex Cyr. All rights reserved.
 //
 
 import UIKit
+import GoogleMobileAds
 
 
 
@@ -15,12 +16,25 @@ class LocalPlayViewController: UIViewController {
     
     
 
+    @IBOutlet weak var bannerView: GADBannerView!
     
     @IBOutlet weak var phoneWidthConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        #if FREE
+            bannerView.adSize = kGADAdSizeSmartBannerPortrait
+            bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+            bannerView.rootViewController = self
+            bannerView.load(GADRequest())
+
+            
+        #else
+            bannerView.frame.size.height = 0
+            bannerView.isHidden = true
+            print("not free")
+        #endif
+        /*
         let iphoneImage = self.view.viewWithTag(111) as! UIImageView
         let arrow1 = self.view.viewWithTag(112) as! UIImageView
         let arrow2 = self.view.viewWithTag(113) as! UIImageView
@@ -64,7 +78,7 @@ class LocalPlayViewController: UIViewController {
         if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
             phoneWidthConstraint.constant = 700.0
         }
-
+*/
         
 }
 

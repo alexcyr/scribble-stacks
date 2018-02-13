@@ -1,6 +1,6 @@
 //
 //  TeamViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 12/15/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -69,6 +69,8 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var decodedImage: UIImage!
     var selectedGame: String = ""
     var coins: Int?
+    var recentPresent = false
+    var userID = ""
     
     @IBOutlet weak var inviteButton: UIButton!
     @IBOutlet weak var teamName: UITextField!
@@ -78,6 +80,45 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     @IBAction func unwindToTeam(segue: UIStoryboardSegue) {}
     
+    @IBAction func deleteTeam(_ sender: Any) {
+        let refreshAlert = UIAlertController(title: "Delete Team?", message: "Do you wish to remove yourself from this team?", preferredStyle: UIAlertControllerStyle.alert)
+        
+        refreshAlert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (action: UIAlertAction!) in
+            
+        }))
+        
+        refreshAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
+            
+            
+                let coinAlert = UIAlertController(title: "Are You Sure?", message: "This cannot be undone.", preferredStyle: UIAlertControllerStyle.alert)
+            
+                coinAlert.addAction(UIAlertAction(title: "Yes I'm Sure", style: .default, handler: { (action: UIAlertAction!) in
+                    self.ref?.child("Teams").child(self.teamID).child("teamInfo").child("users").child(self.userID).removeValue { (error, ref) in
+                        if error != nil {
+                            print("error \(error ?? ": something went wrong" as! Error)")
+                        }
+                    }
+                    self.ref?.child("Users").child(self.userID).child("Teams").child(self.teamID).removeValue { (error, ref) in
+                        if error != nil {
+                            print("error \(error ?? ": something went wrong" as! Error)")
+                        }
+                    }
+                    self.performSegue(withIdentifier: "DeleteToHome", sender: self)
+
+                }))
+            coinAlert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (action: UIAlertAction!) in
+            }))
+                
+                self.present(coinAlert, animated: true, completion: nil)
+            
+           
+        }))
+        
+        
+        
+        present(refreshAlert, animated: true, completion: nil)
+        
+    }
     func buttonTap(){
         
     }
@@ -115,9 +156,21 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }))
         
         refreshAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-            self.changeName = true
-            self.performSegue(withIdentifier: "ToTeamName", sender: self)
             
+            if self.coins! < 20{
+                let coinAlert = UIAlertController(title: "Sorry!", message: "You don't have enough coins.", preferredStyle: UIAlertControllerStyle.alert)
+                
+                coinAlert.addAction(UIAlertAction(title: "Okay.", style: .default, handler: { (action: UIAlertAction!) in
+                    
+                }))
+
+                self.present(coinAlert, animated: true, completion: nil)
+            }
+            else{
+            self.changeName = true
+            
+            self.performSegue(withIdentifier: "ToTeamName", sender: self)
+            }
         }))
         
         
@@ -132,8 +185,10 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
         self.tableView.allowsSelection = false
 
+        ref = Database.database().reference()
+
         
-        customUrl = "http://scribblestack.com/teamID=\(teamID!)"
+        customUrl = "http://ScribbleStacks.com/teamID=\(teamID!)"
         encodedURL = customUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         print(encodedURL)
         
@@ -146,9 +201,36 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         logoView.addSubview(imageView)
         self.navigationItem.titleView = logoView
         
+        let earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+        self.coins = earnedCoins
         
         self.tableView.delegate = self
         self.tableView.dataSource = self
+        
+        let group1 = DispatchGroup()
+        group1.enter()
+        if let user  = Auth.auth().currentUser{
+            userID = user.uid
+            print("poop")
+            print(userID)
+
+            self.ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
+                print(snapshot)
+                if snapshot.hasChildren(){
+                    let snap = snapshot.value! as! NSDictionary
+                    let dbCoins = (snap["currency"] as! Int)
+                    self.coins = self.coins! + dbCoins
+                    print("poop")
+                   
+                    group1.leave()
+                }
+                
+                
+                
+                
+            })
+            
+            group1.notify(queue: DispatchQueue.main, execute: {
         
         let attachment = NSTextAttachment()
         attachment.bounds = CGRect(x: 0, y: -8,width: 30,height: 30);
@@ -165,10 +247,10 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let newBackButton = UIBarButtonItem(customView: label)
         self.navigationItem.rightBarButtonItem = newBackButton
         
+            })
         
+        }
         
-        
-        ref = Database.database().reference()
         
         
         
@@ -187,14 +269,27 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         toggleAuthUI()
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         super.viewWillAppear(animated)
+        let attachment = NSTextAttachment()
+        attachment.bounds = CGRect(x: 0, y: -8,width: 30,height: 30);
+        attachment.image = UIImage(named: "bobCoin.png")
+        let attachmentString = NSAttributedString(attachment: attachment)
+        var attributes = [NSAttributedStringKey: AnyObject]()
+        attributes[NSAttributedStringKey.foregroundColor] = UIColorFromRGB(rgbValue: 0xF9A919)
+        let myString = NSMutableAttributedString(string: "\(self.coins!) ", attributes: attributes)
+        myString.append(attachmentString)
         
+        let label = UILabel()
+        label.attributedText = myString
+        label.sizeToFit()
+        let newBackButton = UIBarButtonItem(customView: label)
+        self.navigationItem.rightBarButtonItem = newBackButton
         
         
         print("poop")
         let group2 = DispatchGroup()
         
         if let user  = Auth.auth().currentUser{
-            let userID: String = user.uid
+            userID = user.uid
             print("poop")
             print(userID)
             
@@ -412,12 +507,12 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 
                 // A message hint for the dialog. Note this manifests differently depending on the
                 // received invation type. For example, in an email invite this appears as the subject.
-                invite.setMessage("Try this out!\n -\(GIDSignIn.sharedInstance().currentUser.profile.name!)")
+                invite.setMessage("You've been invited to join team \(self.teamName!) in Scribble Stacks!")
                 // Title for the dialog, this is what the user sees before sending the invites.
                 invite.setTitle("Invite Friends")
                 invite.setDeepLink("\(encodedURL)")
                 invite.setCallToActionText("Install!")
-                invite.setCustomImage("https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png")
+                invite.setCustomImage("https://farm5.staticflickr.com/4767/40197564072_7528c2e158_z.jpg")
                 invite.open()
             }
             
@@ -439,10 +534,11 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     func numberOfSections(in: UITableView) -> Int {
         if recentGames.count == 0{
-            return 2
+            return 3
         }
         else{
-        return 3
+            recentPresent = true
+        return 4
         }
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -454,7 +550,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             print(tableData.count)
             return usernames.count
         }
-        else {
+        else if section == 2 && recentPresent{
             let rowCount = recentGames.count
             if (rowCount%2) == 0{
                 return (rowCount/2)
@@ -464,8 +560,11 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             }
             
         }
+        else{
+            return 1
+        }
     }
-    let headerTitles = ["", "TEAM MEMBERS", "RECENT GAMES"]
+    let headerTitles = ["", "TEAM MEMBERS", "RECENT GAMES", ""]
     
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -502,7 +601,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             view.backgroundColor = UIColor.white;
             return view
         }
-        else{
+        else if section == 2 && recentPresent{
             let view = UIView(frame: CGRect(x:15, y:0, width:tableView.frame.size.width - 30, height:30))
             let label = UILabel(frame: CGRect(x:15, y:6, width:tableView.frame.size.width - 30, height:30))
             let line = UIView(frame: CGRect(x:15, y:15, width:tableView.frame.size.width - 30, height:30))
@@ -521,6 +620,10 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             view.backgroundColor = UIColor.white;
             return view
         }
+        else{
+            let view = UIView(frame: CGRect(x:0, y:0, width:tableView.frame.size.width, height:0))
+            return view
+        }
         
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -531,8 +634,12 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         else if section == 1{
             return 35
         }
-        else{
+        else if section == 2 && recentPresent{
             return 35
+        }
+        else {
+            return 0
+            
         }
     }
     
@@ -544,7 +651,14 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         case 1:
             return headerTitles[1]
         case 2:
+            if recentPresent{
             return headerTitles[2]
+            }
+            else{
+                return headerTitles[3]
+            }
+        case 3:
+            return headerTitles[3]
         default:
             return "No More Data"
         }
@@ -560,10 +674,13 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             else if n == 1{
                     return 25.0
             }
-            else{
+            else if n == 2 && recentPresent{
                 return (UIScreen.main.bounds.width / 2)
                 
             }
+        else{
+            return 138.0
+        }
         
          
         
@@ -601,7 +718,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         return cell
         }
-        else{
+        else if indexPath.section == 2 && recentPresent{
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: "RecentGames", for: indexPath as IndexPath) as! RecentGamesButtonCell
             cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
@@ -659,6 +776,15 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 }}
             return cell
 
+        }
+        else {
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: "DeleteCell", for: indexPath as IndexPath)
+            cell.contentView.backgroundColor = UIColorFromRGB(rgbValue: 0xffffff)
+            
+            
+            
+            return cell
         }
         
         //  Now do whatever you were going to do with the title.

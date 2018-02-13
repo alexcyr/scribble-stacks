@@ -1,6 +1,6 @@
 //
 //  EndGameViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 10/27/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -11,6 +11,7 @@ import FirebaseAuth
 import FirebaseDatabase
 import Photos
 import AVFoundation
+import GoogleMobileAds
 
 
 
@@ -401,7 +402,7 @@ extension UIView {
 class EndGameViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, ButtonCellDelegate {
     
     var ref: DatabaseReference?
-    
+    var interstitial: GADInterstitial!
     @IBOutlet weak var tableView: UITableView!
     var turnsArray = [Any?]()
     var turnCount = 0
@@ -750,6 +751,21 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         
         
         if (gameID != nil){
+            #if FREE
+                if gameID != nil {
+                    var gameAdCount = UserDefaults.standard.integer(forKey: "gameAdCount")
+                    gameAdCount += 1
+                    UserDefaults.standard.setValue(gameAdCount, forKey: "gameAdCount")
+                    if gameAdCount >= 4 {
+                        interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+                        let request = GADRequest()
+                        interstitial.load(request)
+                        UserDefaults.standard.setValue(0, forKey: "gameAdCount")
+                        
+                    }
+                }
+                
+            #endif
             print(gameID!)
             /*
                 if self.voted == false {
@@ -840,6 +856,16 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
             
         }
         else{
+            #if FREE
+               
+                
+                        interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+                        let request = GADRequest()
+                        interstitial.load(request)
+            
+                
+            #endif
+            
             for index in 1...game.images.count {
                 images.append(game.images[index-1])
             }
@@ -1269,7 +1295,9 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
             if teamID != nil{
                 controller.teamID = teamID
                 self.ref?.removeAllObservers()
-                
+            }
+            else{
+                controller.interstitial = interstitial
             }
             
         }

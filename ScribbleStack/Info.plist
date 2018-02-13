@@ -28,7 +28,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.BigcatCreativeLabs.ScribbleStack</string>
+			<string>com.BigcatCreativeLabs.ScribbleStacks</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.BigcatCreativeLabs.ScribbleStack</string>

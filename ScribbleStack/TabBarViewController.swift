@@ -1,6 +1,6 @@
 //
 //  TabBarViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 7/13/17.
 //  Copyright © 2017 Alex Cyr. All rights reserved.
@@ -142,10 +142,10 @@ class TabBarViewController: SwipeableTabBarController {
                     print("poop")
                     let dbCoins = (snap["currency"] as! Int)
                     self.coins = self.coins + dbCoins
-                    
+                    group1.leave()
                     if (snap["Teams"] as? NSDictionary) != nil{
                         
-                        group1.leave()
+                        
                     }
                     else{
                         

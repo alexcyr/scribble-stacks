@@ -1,6 +1,6 @@
 //
 //  ShopViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 3/16/17.
 //  Copyright © 2017 Alex Cyr. All rights reserved.
@@ -280,6 +280,7 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var tableData: [[ShopItem]] = []
     var ready = false
     var coins = 0
+    var itemCount = 0
     var userID = ""
     var base64String: NSString!
     let screenWidth = UIScreen.main.bounds.width
@@ -395,6 +396,7 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                             n -= 1
                         }
                         else{
+                            self.itemCount += 1;
                         n += 1
                             let wordObject = (allWordsDict!["\(word)"] as! NSDictionary)
                             self.base64String = wordObject.value(forKey: "Image") as! NSString? ?? ""
@@ -402,9 +404,9 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
                             let decodedData = NSData(base64Encoded: self.base64String as String, options: NSData.Base64DecodingOptions())
                             let wordImage = UIImage(data: decodedData! as Data)!
                           
-                            let wordPack = ShopItem(name: "", owned: false, value: 100, image: wordImage)
+                            let wordPack = ShopItem(name: "", owned: false, value: 50, image: wordImage)
                             if word.range(of:"Expansion") != nil{
-                                wordPack.value = 150
+                                wordPack.value = 100
                             }
                         wordPack.name = word
                         for x in self.ownedWords{
@@ -658,8 +660,12 @@ class ShopViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
-        
+        if indexPath.row != (self.itemCount/2 - 1){
        return (screenWidth/2) + 10.0
+        }
+        else{
+            return (screenWidth/2) + 30.0
+        }
         
     }
     

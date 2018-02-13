@@ -1,6 +1,6 @@
 //
 //  HowToViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 1/20/18.
 //  Copyright © 2018 Alex Cyr. All rights reserved.
@@ -86,6 +86,11 @@ class HowToViewController: UIViewController, UITableViewDataSource, UITableViewD
         
         let textOutlet = cell.viewWithTag(101) as! UILabel
         textOutlet.text = howToText[n-1]
+            if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+                textOutlet.font = UIFont(name: "Rajdhani", size: 28)
+                
+                
+            }
         
         cell.backgroundColor = UIColor.clear
                 cell.selectionStyle = UITableViewCellSelectionStyle.none

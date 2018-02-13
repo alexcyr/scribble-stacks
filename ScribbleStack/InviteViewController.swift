@@ -1,6 +1,6 @@
 //
 //  NewGameViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 11/15/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -75,7 +75,7 @@ class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDele
             invite.setTitle("Invite Friends")
             invite.setDeepLink("\(encodedURL)")
             invite.setCallToActionText("Install!")
-            invite.setCustomImage("scribble-logo-light.png")
+            invite.setCustomImage("https://farm5.staticflickr.com/4767/40197564072_7528c2e158_z.jpg")
             invite.open()
         }
        
@@ -88,7 +88,7 @@ class InviteViewController: UIViewController, GIDSignInDelegate, GIDSignInUIDele
         startOutlet.isEnabled = false
         startOutlet.layer.backgroundColor = UIColorFromRGB(rgbValue: 0xe5e5e5).cgColor
 
-        customUrl = "http://scribblestack.com/teamID=\(teamID!)"
+        customUrl = "http://scribblestacks.com/teamID=\(teamID!)"
         encodedURL = customUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         print(encodedURL)
         

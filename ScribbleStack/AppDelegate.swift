@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 10/9/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -13,7 +13,7 @@ import FirebaseDatabase
 import FirebaseInvites
 import FirebaseDynamicLinks
 import FirebaseAuth
-
+import GoogleMobileAds
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
@@ -31,23 +31,43 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        #if FREE
+            let filePath = Bundle.main.path(forResource: "GoogleService-Info-Free", ofType: "plist")!
+            let options = FirebaseOptions(contentsOfFile: filePath)
+            FirebaseOptions.defaultOptions()?.deepLinkURLScheme = "com.bigcatcreativelabs.scribblestacks"
+
+            FirebaseApp.configure(options: options!)
+        #else
+            let filePath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist")!
+            let options = FirebaseOptions(contentsOfFile: filePath)
+            FirebaseOptions.defaultOptions()?.deepLinkURLScheme = "com.bigcatcreativelabs.scribblestacks"
+
+            FirebaseApp.configure(options: options!)
+            
+        #endif
         
-        FirebaseApp.configure()
+        #if FREE
+            GADMobileAds.configure(withApplicationID: "ca-app-pub-3940256099942544~1458002511")
+        #endif
+            
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         GIDSignIn.sharedInstance().delegate = self
-        let userDefaults = UserDefaults.standard
+        DynamicLinks.performDiagnostics(completion: nil)
 
         if !(UserDefaults.standard.bool(forKey: "hasLaunched")){
             
             let userDefaults = UserDefaults.standard
+            #if FREE
+                userDefaults.setValue(0, forKey: "gameAdCount")
+            #endif
             userDefaults.setValue(0, forKey: "earnedCoins")
             userDefaults.setValue(true, forKey: "hasLaunched")
-            let ownedWords: NSDictionary = ["Base": true]
+          
+            let ownedWords: NSDictionary = ["Easy": true, "Medium": false, "Hard": false]
             userDefaults.setValue(ownedWords, forKey: "ownedWords")
             
         }
-        let ownedWords: NSDictionary = ["Easy": true, "Medium": false, "Hard": false]
-        userDefaults.setValue(ownedWords, forKey: "ownedWords")
+      
        
         window2 = UIWindow(frame: UIScreen.main.bounds)
         if #available(iOS 11.0, *) {
@@ -63,6 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         }
         if (launchOptions?[UIApplicationLaunchOptionsKey.url] as? NSURL) != nil {
             //App opened from invite url
+            print("is there something here?")
             self.handleFirebaseInviteDeeplink()
         }
         
@@ -71,6 +92,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         return true
     }
     
+
     func returnFirst()->Bool{
         return first
     }
@@ -731,7 +753,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      // ...
      
      let urlString = dynamicLink.url
-     
+     print("yo link", urlString)
      let deepLink = url.absoluteString
      let teamArray = deepLink.components(separatedBy: "teamID=")
      teamID = teamArray[1]
@@ -742,8 +764,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      var teamName: String = ""
      print("tintin")
      
-     self.ref.child("Teams/\(self.teamID!)/teamInfo/users").child("\(self.userID)").setValue(["activeGame": false])
-     self.ref.child("Users").child(self.userID).child("Teams").child("\(self.teamID!)").setValue([true])
+        self.ref.child("Teams/\(self.teamID)/teamInfo/users").child("\(self.userID)").setValue(["activeGame": false])
+        self.ref.child("Users").child(self.userID).child("Teams").child("\(self.teamID)").setValue([true])
      let topWindow: UIWindow = UIWindow(frame: UIScreen.main.bounds)
      topWindow.rootViewController = UIViewController()
      topWindow.windowLevel = UIWindowLevelAlert + 1
@@ -768,7 +790,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      }
      return false
      }
-     
+ 
      
      func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
      
@@ -784,7 +806,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      return handled
      }
      }
-     
+ 
      @available(iOS 8.0, *)
      func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
      if let incomingURL = userActivity.webpageURL{
@@ -810,7 +832,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      }
      print("incoming link \(dynamicLink.url)")
      }
-     
+ */
+    /*
      @available(iOS 9.0, *)
      func application(_ application: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
      
@@ -827,58 +850,54 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      }
      
      
-     func application(_ application: UIApplication,
-     open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-     if let invite = Invites.handle(url, sourceApplication:sourceApplication, annotation:annotation) as? ReceivedInvite {
-     if let user = Auth.auth().currentUser {
-     for profile in user.providerData {
-     let uid = user.uid
-     print("Successfully logged into Firebase with Google", uid)
-     
-     self.userID = uid
-     
-     let matchType =
-     (invite.matchType == .weak) ? "Weak" : "Strong"
-     print("Invite received from: \(sourceApplication) Deeplink: \(invite.deepLink)," +
-     "Id: \(invite.inviteId), Type: \(matchType)")
-     let url = invite.deepLink
-     let deeplinkTeamArray = url.components(separatedBy: "teamID=")
-     teamID = deeplinkTeamArray[1]
-     print(teamID)
-     self.ref = Database.database().reference()
-     
-     
-     var teamName: String = ""
-     print("tintin")
-     
-     self.ref.child("Teams/\(self.teamID!)/teamInfo/users").child("\(self.userID)").setValue(["activeGame": false])
-     self.ref.child("Users").child(self.userID).child("Teams").child("\(self.teamID!)").setValue([true])
-     let topWindow: UIWindow = UIWindow(frame: UIScreen.main.bounds)
-     topWindow.rootViewController = UIViewController()
-     topWindow.windowLevel = UIWindowLevelAlert + 1
-     let alert = UIAlertController(title: "Alert", message: "Added to team \(teamName))", preferredStyle: UIAlertControllerStyle.alert)
-     alert.addAction(UIAlertAction(title: "ok", style: UIAlertActionStyle.default, handler: {(action: UIAlertAction) -> Void in
-     // continue your work
-     // important to hide the window after work completed.
-     // this also keeps a reference to the window until the action is invoked.
-     
-     topWindow.isHidden = true
-     }))
-     
-     topWindow.makeKeyAndVisible()
-     topWindow.rootViewController?.present(alert, animated: true, completion: nil)
-     
-     
-     }}
-     
-     
-     
-     return true
-     }
-     
-     return GIDSignIn.sharedInstance().handle(url, sourceApplication: sourceApplication, annotation: annotation)
-     }
-     
+    func application(_ application: UIApplication,
+                     open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
+        print("hey", url)
+        if let invite = Invites.handle(url, sourceApplication:sourceApplication, annotation:annotation) as? ReceivedInvite {
+            print("Successfully logged into Firebase with Google")
+            
+            
+            let matchType =
+                (invite.matchType == .weak) ? "Weak" : "Strong"
+            print("Invite received from: \(sourceApplication) Deeplink: \(invite.deepLink)," +
+                "Id: \(invite.inviteId), Type: \(matchType)")
+            let url = invite.deepLink
+            let deeplinkTeamArray = url.components(separatedBy: "teamID=")
+            teamID = deeplinkTeamArray[1]
+            print(teamID)
+            self.ref = Database.database().reference()
+            
+            
+            var teamName: String = ""
+            print("tintin")
+            
+            // self.ref.child("Teams/\(self.teamID)/teamInfo/users").child("\(self.userID)").setValue(["activeGame": false])
+            // self.ref.child("Users").child(self.userID).child("Teams").child("\(self.teamID)").setValue([true])
+            let topWindow: UIWindow = UIWindow(frame: UIScreen.main.bounds)
+            topWindow.rootViewController = UIViewController()
+            topWindow.windowLevel = UIWindowLevelAlert + 1
+            let alert = UIAlertController(title: "Alert", message: "Added to team \(teamName))", preferredStyle: UIAlertControllerStyle.alert)
+            alert.addAction(UIAlertAction(title: "ok", style: UIAlertActionStyle.default, handler: {(action: UIAlertAction) -> Void in
+                // continue your work
+                // important to hide the window after work completed.
+                // this also keeps a reference to the window until the action is invoked.
+                
+                topWindow.isHidden = true
+            }))
+            
+            topWindow.makeKeyAndVisible()
+            topWindow.rootViewController?.present(alert, animated: true, completion: nil)
+            
+            
+        }
+    
+    
+    
+    return true
+}
+
+*/
+     /*
      func application(application: UIApplication, continueUserActivity userActivity: NSUserActivity, restorationHandler:([AnyObject]?)-> Void) -> Bool{
      if let incomingURL = userActivity.webpageURL{
      let linkHandled = DynamicLinks.dynamicLinks()!.handleUniversalLink(incomingURL, completion: {
@@ -916,13 +935,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      @available(iOS 9.0, *)
      func application(_ application: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any])
      -> Bool {
-     print("woop woop")
+     print("woop woop", url)
      return self.application(application, open: url, sourceApplication: options[UIApplicationOpenURLOptionsKey.sourceApplication] as? String, annotation: "")
      }
      
      func application(_ application: UIApplication,
      open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-     print("hmph")
+     print("hmph", url)
      if GIDSignIn.sharedInstance().handle(url, sourceApplication: sourceApplication, annotation: annotation) {
      print("google signed in woop")
      
@@ -937,13 +956,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      return
      }
      if let invite = invite {
-     self.showAlertView(withInvite: invite)
+     //self.showAlertView(withInvite: invite)
      }
      // [END_EXCLUDE]
      }
      }
      // [END openurl]
      // [START continueuseractivity]
+    
      func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
      return Invites.handleUniversalLink(userActivity.webpageURL!) { invite, error in
      print("rada rada")
@@ -967,7 +987,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      alertController.addAction(okAction)
      self.window?.rootViewController?.present(alertController, animated: true, completion: nil)
      }
-     
+ 
      
      
      @available(iOS 9.0, *)
@@ -978,7 +998,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      
      func application(_ application: UIApplication,
      open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-     print("hello there")
+     print("hello there", url)
      if GIDSignIn.sharedInstance().handle(url, sourceApplication: sourceApplication, annotation: annotation) {
      return true
      }
@@ -989,15 +1009,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      
      }
      }
-     */
+ */
+    
+    
+    
     @available(iOS 9.0, *)
     func application(_ application: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any])
         -> Bool {
             return self.application(application, open: (url as NSURL) as URL, sourceApplication: options[UIApplicationOpenURLOptionsKey.sourceApplication] as? String, annotation: "" as AnyObject)
     }
-    
+  
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
+        var dynamicLink: DynamicLink? = DynamicLinks().dynamicLink(fromCustomSchemeURL: url)
         print("hey a url!",url)
+        print(dynamicLink?.url)
         if Invites.handleUniversalLink(url, completion: { (invite, error) in
             
             let matchType = (invite?.matchType == ReceivedInviteMatchType.weak) ? "Weak" : "Strong"
@@ -1025,7 +1050,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         }
         return GIDSignIn.sharedInstance().handle(url as URL!, sourceApplication: sourceApplication, annotation: annotation)
     }
-    
+
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
         
         if userActivity.webpageURL != nil{

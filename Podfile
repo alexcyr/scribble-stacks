@@ -1,12 +1,11 @@
 # Uncomment the next line to define a global platform for your project
-# platform :ios, ’10.0’
+# platform :ios, '9.0'
 
-target 'ScribbleStack' do
+target 'ScribbleStacks' do
   # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
 
-  # Pods for ScribbleStack
-
+  # Pods for ScribbleStacks
 pod 'Firebase/Core'
 pod 'Firebase/Auth'
 pod 'Firebase/Database'
@@ -19,5 +18,30 @@ pod 'DHSmartScreenshot'
 pod 'lottie-ios'
 pod 'Fakery'
 pod 'SwipeableTabBarController'
+pod 'Firebase/AdMob'
 
 end
+
+target 'ScribbleStacksFree' do
+  # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for ScribbleStacksFree
+pod 'Firebase/Core'
+pod 'Firebase/Auth'
+pod 'Firebase/Database'
+pod 'Firebase/Invites'
+pod 'Firebase/DynamicLinks'
+pod 'GoogleSignIn'
+pod 'SideMenu'
+pod 'NVActivityIndicatorView'
+pod 'DHSmartScreenshot'
+pod 'lottie-ios'
+pod 'Fakery'
+pod 'SwipeableTabBarController'
+pod 'Firebase/AdMob'
+
+end
+
+
+

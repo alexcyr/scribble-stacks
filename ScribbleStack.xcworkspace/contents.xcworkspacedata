@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:ScribbleStack.xcodeproj">
+      location = "group:/Users/alexcyr/Google Drive/scribble stack/ScribbleStack/ScribbleStacks.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

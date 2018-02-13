@@ -1,6 +1,6 @@
 //
 //  WordSelectViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 10/9/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -21,12 +21,13 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
     var userID = ""
     var coins = 0
     let game = Game(captions: [], images: [])
+    var wordDict: NSDictionary?
     var getRandomWord: [String] = []
     var words = ["DOG CHASING A CAR","BRUSHING TEETH","POTATO","SKYDIVING","HOTDOG","CATDOG","PINATA","SUPERMAN","PIG IN A BLANKET","BANANA", "TACO","STAIRWAY TO HEAVEN","TURTLE SOUP","BASEBALL","BEACH","REINDEER LAYING AN EGG"]
     
     @IBAction func refreshWords(_ sender: AnyObject) {
       
-        let cost = 20
+        let cost = 10
         if coins >= cost{
             
             let refreshAlert = UIAlertController(title: "Refresh Words", message: "Spend \(cost) coins to get a new set of words?", preferredStyle: UIAlertControllerStyle.alert)
@@ -36,7 +37,6 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
             }))
             
             refreshAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-                self.loadWords()
                 var localCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
                 var total = cost
                 var dbCoins = self.coins - localCoins
@@ -53,9 +53,10 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
                 }
                 self.coins = localCoins + dbCoins
                 if Auth.auth().currentUser != nil{
-                    self.ref?.child("Users/\(self.userID)/currency").setValue(self.coins)
+                    self.ref?.child("Users/\(self.userID)/currency").setValue(dbCoins)
                 }
-                
+                self.loadWords()
+
                 
                 
             }))
@@ -102,8 +103,38 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
         let earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
         self.coins = earnedCoins
         
-            loadWords()
+        
+        
+        let group1 = DispatchGroup()
+        
+       
+        
+        
+        group1.enter()
+        if let user = Auth.auth().currentUser{
+            userID = user.uid
+            wordDict = (UserDefaults.standard.dictionary(forKey: "wordList")! as NSDictionary)
             
+            self.ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
+                print(snapshot)
+                if snapshot.hasChildren(){
+                    let snap = snapshot.value! as! NSDictionary
+                    self.coins = self.coins + (snap["currency"] as! Int)
+                    group1.leave()
+                }
+            })
+            
+        }
+        else{
+            wordDict = self.loadJson(forFilename: "words")
+            group1.leave()
+            
+        }
+        group1.notify(queue: DispatchQueue.main, execute: {
+
+
+            self.loadWords()
+        })
         
        
             /*
@@ -174,31 +205,7 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
         self.ownedWordsBool.removeAll()
         self.getRandomWord.removeAll()
 
-        var wordDict: NSDictionary?
-        
-        let group1 = DispatchGroup()
-        
-        group1.enter()
-        if let user = Auth.auth().currentUser{
-            userID = user.uid
-            wordDict = (UserDefaults.standard.dictionary(forKey: "wordList")! as NSDictionary)
-
-        self.ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
-            print(snapshot)
-            if snapshot.hasChildren(){
-                let snap = snapshot.value! as! NSDictionary
-                self.coins = self.coins + (snap["currency"] as! Int)
-                group1.leave()
-            }
-        })
-        
-        }
-        else{
-            wordDict = self.loadJson(forFilename: "words") 
-            group1.leave()
-            
-        }
-        let wordData = UserDefaults.standard.dictionary(forKey: "ownedWords")!
+                let wordData = UserDefaults.standard.dictionary(forKey: "ownedWords")!
         self.ownedWords = Array(wordData.keys)
         self.ownedWordsBool = Array(wordData.values)
         print(self.ownedWords)
@@ -221,7 +228,6 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
             }
         }
         
-        group1.notify(queue: DispatchQueue.main, execute: {
             let attachment = NSTextAttachment()
             attachment.bounds = CGRect(x: 0, y: -8,width: 30,height: 30);
             attachment.image = UIImage(named: "bobCoin.png")
@@ -262,7 +268,7 @@ class WordSelectViewController: UIViewController, UITableViewDataSource, UITable
                 }
             
             
-        })
+     
     }
     @objc func barButtonItemClicked(){
         print("clicked")

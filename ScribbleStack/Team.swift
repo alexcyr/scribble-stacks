@@ -1,6 +1,6 @@
 //
 //  Team.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 12/7/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.

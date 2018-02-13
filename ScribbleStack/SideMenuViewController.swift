@@ -1,6 +1,6 @@
 //
 //  SideMenuViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 7/6/17.
 //  Copyright © 2017 Alex Cyr. All rights reserved.

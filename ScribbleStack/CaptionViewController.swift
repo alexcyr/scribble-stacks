@@ -1,6 +1,6 @@
 //
 //  CaptionViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 10/22/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -10,6 +10,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseDatabase
 import NVActivityIndicatorView
+import GoogleMobileAds
 
 extension UIImage {
     class func imageWithLabel(label: UILabel) -> UIImage {
@@ -38,6 +39,8 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     var decodedImage: UIImage!
     var didStart = false
     var finishedWord = false
+    var interstitial: GADInterstitial!
+
     
     @IBOutlet weak var successLabel2: UILabel!
     @IBOutlet weak var successLabel1: UILabel!
@@ -285,6 +288,21 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     }
     func captionDone(){
        
+        #if FREE
+            if gameID != nil{
+            var gameAdCount = UserDefaults.standard.integer(forKey: "gameAdCount")
+            gameAdCount += 1
+            UserDefaults.standard.setValue(gameAdCount, forKey: "gameAdCount")
+                if gameAdCount >= 4 {
+                    interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+                    let request = GADRequest()
+                    interstitial.load(request)
+                    UserDefaults.standard.setValue(0, forKey: "gameAdCount")
+                    
+                }
+
+            }
+        #endif
         
         didStart = false
         finishedWord = true

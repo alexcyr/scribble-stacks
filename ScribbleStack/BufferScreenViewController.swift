@@ -1,6 +1,7 @@
+
 //
 //  BufferScreenViewController.swift
-//  ScribbleStack
+//  ScribbleStacks
 //
 //  Created by Alex Cyr on 10/26/16.
 //  Copyright © 2016 Alex Cyr. All rights reserved.
@@ -11,6 +12,7 @@ import FirebaseAuth
 import FirebaseDatabase
 import NVActivityIndicatorView
 import Lottie
+import GoogleMobileAds
 
 
 
@@ -21,7 +23,7 @@ class BufferScreenViewController: UIViewController, NVActivityIndicatorViewable{
     var game: Game!
     var teamID: String?
     var gameID: String?
-    var userCount = 0
+    var userCount = 4
     var ref: DatabaseReference!
     var turnsArray: [Any?] = []
     var users: [String] = []
@@ -39,7 +41,12 @@ class BufferScreenViewController: UIViewController, NVActivityIndicatorViewable{
     var noGames = true
     var strCnt = 0
     var coins = 0
+    var fromEnd = false
+    var interstitial: GADInterstitial!
+    var interstitialShown = false
+    var adLoading = false
     
+    @IBOutlet weak var typeHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var coinOutlet: UILabel!
     @IBOutlet weak var textAnimOutlet: UIView!
     @IBOutlet weak var newGameText: UIImageView!
@@ -208,6 +215,17 @@ found.text = ""
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
+        #if FREE
+            
+                if interstitial != nil && interstitial.isReady {
+                    interstitial.present(fromRootViewController: self)
+                } else {
+                    print("Ad wasn't ready")
+                }
+            
+        #endif
+        
         let earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
         coins = earnedCoins
         coinOutlet.text = "\(coins)"
@@ -314,6 +332,8 @@ found.text = ""
     }
     
     @objc func updateCounter() {
+       
+        
         let label = self.view.viewWithTag(10) as! UILabel
         let text = label.text
         if text == "Searching for games."{
@@ -461,6 +481,9 @@ found.text = ""
         textAnimOutlet.isHidden = false
         found.isHidden = false
         
+        if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
+            typeHeightConstraint.constant = 70.0
+        }
         
         let letter = self.view.viewWithTag(734) as! SpringImageView
         letter.force = 0.5
@@ -890,9 +913,7 @@ found.text = ""
                                 let inuse = "inuse"
                                 print(gameStatus)
                                 print(inplay)
-                                if (teamID) == "000000"{
-                                }
-                                else{
+                               
                                     if self.userCount == 2 || self.userCount == 1{
                                         if userID == gameData?["lastPlayer"]! as! String{
                                             userKey = false
@@ -906,7 +927,7 @@ found.text = ""
                                             userKey = false
                                         }
                                     }
-                                }
+                                
                                 if userKey == true{
                                 if gameStatus == inplay{
                                     
