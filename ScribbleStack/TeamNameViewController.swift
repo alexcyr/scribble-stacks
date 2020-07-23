@@ -144,6 +144,7 @@ class TeamNameViewController: UIViewController {
             view.viewWithTag(21)?.backgroundColor = UIColorFromRGB(rgbValue: 0xF9A919)
             buttonOutlet.backgroundColor = UIColorFromRGB(rgbValue: 0x01A7B9)
             teamName.backgroundColor = UIColorFromRGB(rgbValue: 0xE6E7E8)
+            teamName.textColor = UIColor.black
         }
    
     }

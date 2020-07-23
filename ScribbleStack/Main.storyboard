@@ -130,11 +130,11 @@
             <objects>
                 <viewController id="qGW-VW-jC3" customClass="HomeViewController" customModule="ScribbleStacks" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" tag="313" contentMode="scaleToFill" id="wfx-ot-kfm">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="519"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView autoresizesSubviews="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" indicatorStyle="white" dataMode="prototypes" style="plain" separatorStyle="default" sectionIndexMinimumDisplayRowCount="2" rowHeight="76" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="sl1-5Y-1uA">
-                                <rect key="frame" x="4" y="0.0" width="311" height="518"/>
+                                <rect key="frame" x="4" y="0.0" width="311" height="469"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="separatorColor" red="0.97647058819999999" green="0.66274509800000003" blue="0.098039215690000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="sectionIndexColor" red="0.97647058819999999" green="0.66274509800000003" blue="0.098039215690000001" alpha="1" colorSpace="calibratedRGB"/>
@@ -207,10 +207,10 @@
                                 </prototypes>
                             </tableView>
                             <view tag="42" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="h4J-BD-gJ8" userLabel="Welcome">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="519"/>
                                 <subviews>
                                     <view alpha="0.90000000000000002" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZiW-bZ-4Os">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="519"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="7" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="XOg-pX-EAu" userLabel="YOU CURRENTLY BELONG TO NO TEAMS  TO PLAY WITH FRIENDS, CREATE A NEW TEAM AND INVITE OTHERS TO JOIN YOUR TEAM">
                                                 <rect key="frame" x="26" y="123" width="268" height="141"/>
@@ -251,7 +251,7 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="SWIPE&gt;&gt;" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="Ac0-qZ-ebb" userLabel="YOU CURRENTLY BELONG TO NO TEAMS  TO PLAY WITH FRIENDS, CREATE A NEW TEAM AND INVITE OTHERS TO JOIN YOUR TEAM">
-                                                <rect key="frame" x="211" y="478" width="74" height="37"/>
+                                                <rect key="frame" x="211" y="429" width="74" height="37"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="74" id="2gD-fv-Oao"/>
                                                     <constraint firstAttribute="height" constant="37" id="Ili-FP-G4l"/>
@@ -277,7 +277,7 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                                         </constraints>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aec-dv-wAd">
-                                        <rect key="frame" x="139" y="539" width="42" height="0.0"/>
+                                        <rect key="frame" x="139" y="490" width="42" height="0.0"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="42" id="BUH-Y0-8lk"/>
                                         </constraints>
@@ -305,7 +305,7 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="t3w-aY-300" customClass="GADBannerView">
-                                <rect key="frame" x="0.0" y="518" width="320" height="50"/>
+                                <rect key="frame" x="0.0" y="469" width="320" height="50"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="320" placeholder="YES" id="VBX-7q-FT6"/>
@@ -815,6 +815,9 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="qO1-tx-iWL">
                                 <rect key="frame" x="0.0" y="20" width="320" height="548"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="600" id="BXy-Me-bM1"/>
+                                </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="HeaderTitle" rowHeight="94" id="YsV-Bn-oPQ">
                                         <rect key="frame" x="0.0" y="28" width="320" height="94"/>
@@ -884,11 +887,11 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                         <color key="backgroundColor" red="0.015686274510000001" green="0.46666666670000001" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="WOw-CC-fi3" firstAttribute="leading" secondItem="QKf-jm-R1F" secondAttribute="leading" id="5qr-4f-6Cv"/>
-                            <constraint firstItem="QKf-jm-R1F" firstAttribute="trailing" secondItem="qO1-tx-iWL" secondAttribute="trailing" id="9TI-1B-f7a"/>
+                            <constraint firstItem="QKf-jm-R1F" firstAttribute="trailing" secondItem="qO1-tx-iWL" secondAttribute="trailing" priority="750" id="9TI-1B-f7a"/>
                             <constraint firstItem="WOw-CC-fi3" firstAttribute="top" secondItem="jC7-Vq-QU6" secondAttribute="top" id="QKc-wX-AC2"/>
                             <constraint firstItem="QKf-jm-R1F" firstAttribute="bottom" secondItem="qO1-tx-iWL" secondAttribute="bottom" id="awy-ZK-0Ae"/>
                             <constraint firstItem="qO1-tx-iWL" firstAttribute="centerX" secondItem="QKf-jm-R1F" secondAttribute="centerX" id="cAv-i0-MNe"/>
-                            <constraint firstItem="qO1-tx-iWL" firstAttribute="leading" secondItem="QKf-jm-R1F" secondAttribute="leading" id="cIR-MF-17x"/>
+                            <constraint firstItem="qO1-tx-iWL" firstAttribute="leading" secondItem="QKf-jm-R1F" secondAttribute="leading" priority="750" id="cIR-MF-17x"/>
                             <constraint firstItem="QKf-jm-R1F" firstAttribute="trailing" secondItem="WOw-CC-fi3" secondAttribute="trailing" id="fz6-uD-Rco"/>
                             <constraint firstItem="qO1-tx-iWL" firstAttribute="top" secondItem="QKf-jm-R1F" secondAttribute="top" id="yVm-JA-ZpR"/>
                         </constraints>
@@ -1166,6 +1169,12 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ocj-ZU-WOj" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <view contentMode="scaleToFill" id="Fak-uG-hB6">
+                    <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <viewLayoutGuide key="safeArea" id="5CF-zG-aqA"/>
+                </view>
             </objects>
             <point key="canvasLocation" x="-1791" y="-1202"/>
         </scene>
@@ -1687,8 +1696,8 @@ TO PLAY WITH A GROUP OF FRIENDS, CREATE A NEW TEAM AND INVITE YOUR FRIENDS TO JO
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" tag="1000" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This is the max width of a certain phrase" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" minimumScaleFactor="0.69999999999999996" translatesAutoresizingMaskIntoConstraints="NO" id="r4m-Qf-cML">
-                                                    <rect key="frame" x="17" y="19" width="276" height="50"/>
-                                                    <fontDescription key="fontDescription" name="Bungee-Regular" family="Bungee" pointSize="25"/>
+                                                    <rect key="frame" x="17" y="16" width="276" height="56"/>
+                                                    <fontDescription key="fontDescription" name="Bungee-Regular" family="Bungee" pointSize="28"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -3502,9 +3511,9 @@ X</string>
                                                     <view tag="2025" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ocz-jW-cww" customClass="SpringView" customModule="ScribbleStacks" customModuleProvider="target">
                                                         <rect key="frame" x="20" y="20" width="240" height="240"/>
                                                         <subviews>
-                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2026" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" minimumScaleFactor="0.40000000000000002" translatesAutoresizingMaskIntoConstraints="NO" id="g5c-m1-fa1">
-                                                                <rect key="frame" x="33" y="34" width="173" height="172"/>
-                                                                <fontDescription key="fontDescription" name="Bungee-Regular" family="Bungee" pointSize="32"/>
+                                                            <label opaque="NO" userInteractionEnabled="NO" tag="2026" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="This is the max width of a certain phrase" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="g5c-m1-fa1">
+                                                                <rect key="frame" x="33" y="34" width="174" height="172"/>
+                                                                <fontDescription key="fontDescription" name="Bungee-Regular" family="Bungee" pointSize="44"/>
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
@@ -3764,12 +3773,12 @@ X</string>
         <image name="gameFinished" width="163" height="69"/>
         <image name="globe2-yellow" width="306" height="306"/>
         <image name="howTo1" width="400" height="153"/>
-        <image name="letter_icon" width="88" height="89"/>
+        <image name="letter_icon" width="44" height="44"/>
         <image name="lrgLetter" width="300" height="300"/>
-        <image name="newGameA" width="324" height="173"/>
-        <image name="newGameB" width="324" height="173"/>
+        <image name="newGameA" width="400" height="213"/>
+        <image name="newGameB" width="400" height="213"/>
         <image name="pencil" width="250" height="250"/>
-        <image name="pencil_icon" width="88" height="89"/>
+        <image name="pencil_icon" width="44" height="44"/>
         <image name="scribble-logo" width="600" height="600"/>
         <image name="tab_1a" width="25" height="25"/>
         <image name="tab_1b" width="25" height="25"/>
@@ -3779,21 +3788,22 @@ X</string>
         <image name="tab_3b" width="25" height="25"/>
         <image name="tab_4a" width="25" height="25"/>
         <image name="tab_4b" width="25" height="25"/>
-        <image name="tableFlipa1" width="267" height="92"/>
-        <image name="tableFlipb1" width="166" height="41"/>
-        <image name="trashcan" width="38" height="43"/>
+        <image name="tableFlipa1" width="400" height="138"/>
+        <image name="tableFlipb1" width="400" height="99"/>
+        <image name="trashcan" width="44" height="50"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="yHp-ge-NDU"/>
         <segue reference="oza-qM-r9X"/>
         <segue reference="Hju-Tx-ico"/>
-        <segue reference="xbr-aY-e8Z"/>
+        <segue reference="2Dj-AS-lwe"/>
         <segue reference="4Ng-8D-SuH"/>
         <segue reference="lU0-Lv-2wU"/>
         <segue reference="tOX-mq-Hs5"/>
         <segue reference="paA-fB-HGP"/>
-        <segue reference="9x5-Ba-h7m"/>
+        <segue reference="pW4-ww-I00"/>
         <segue reference="0lB-aj-HzS"/>
-        <segue reference="lrh-jT-HH2"/>
+        <segue reference="QSB-97-YB0"/>
     </inferredMetricsTieBreakers>
     <color key="tintColor" red="0.0" green="0.34901960780000002" blue="0.4549019608" alpha="1" colorSpace="calibratedRGB"/>
 </document>

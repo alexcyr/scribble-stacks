@@ -9,7 +9,6 @@
 import UIKit
 import FirebaseAuth
 import FirebaseDatabase
-import Fakery
 import GoogleMobileAds
 
 extension UITableView {
@@ -40,10 +39,10 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var coins = 0
     var userID = ""
     var noTeams = false
-    let faker = Faker(locale: "nb-NO")
     var namesObj: [String] = []
     var nextViewNumber = 0
     var rando: String?
+    
     
     @IBOutlet weak var bannerView: GADBannerView!
     
@@ -99,18 +98,19 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        #if FREE
+        let ads = UserDefaults.standard.bool(forKey: "ads")
+        
+        if ads{
             bannerView.adSize = kGADAdSizeSmartBannerPortrait
-            bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+            bannerView.adUnitID = "ca-app-pub-4705463543336282/3929162414"
             bannerView.rootViewController = self
             bannerView.load(GADRequest())
-            
-            
-        #else
+        }
+        else{
             bannerView.frame.size.height = 0
             bannerView.isHidden = true
             print("not free")
-        #endif
+        }
         
         NotificationCenter.default.addObserver(self, selector:#selector(populateTable), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
 
@@ -286,7 +286,42 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                         
                         team.time = formatter.string(from: converted1 as Date, to: currentTime as Date)!
                         
-                        
+                        if let messages = nameData?["messages"] as! NSDictionary!{
+                            let messageKeys = Array(messages.allKeys) as! [String]
+                            for key in messageKeys{
+                               let message = messages[key] as! NSDictionary!
+                                let text = message!["message"] as! String!
+                                let url = message!["url"] as! String!
+                                let users = message!["users"] as! NSDictionary!
+                                let userValue = users?["\(self.userID)"]! as! Bool!
+                                if userValue == false{
+                                    let messageAlert = UIAlertController(title: "Message", message: "\(text!)", preferredStyle: UIAlertControllerStyle.alert)
+                                    
+                                    messageAlert.addAction(UIAlertAction(title: "Okay", style: .default, handler: { (action: UIAlertAction!) in
+                                        
+                                    }))
+                                    if url != nil{
+                                    messageAlert.addAction(UIAlertAction(title: "Open in App Store", style: UIAlertActionStyle.default, handler: { (action) in
+                                        // Declare a URL what you would like to open
+                                        let url = URL(string: "\(url!)")!
+                                        // Open website in Safari Mobile
+                                        if #available(iOS 10.0, *) {
+                                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                                        } else {
+                                            // Fallback on earlier versions
+                                        }
+                                    }))
+                                    }
+                                    
+                                    
+                                    
+                                    self.present(messageAlert, animated: true, completion: nil)
+                                    self.ref?.child("Teams/\(data)/teamInfo/messages/\(key)/users/\(self.userID)").setValue(true)
+                                }
+                            }
+
+                        }
+
                         
                         let activeGame: Bool? = userValue?["activeGame"]! as! Bool?
                         if activeGame!{

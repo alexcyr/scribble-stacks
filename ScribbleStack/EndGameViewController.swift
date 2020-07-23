@@ -751,7 +751,9 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
         
         
         if (gameID != nil){
-            #if FREE
+            let ads = UserDefaults.standard.bool(forKey: "ads")
+            
+            if ads{
                 if gameID != nil {
                     var gameAdCount = UserDefaults.standard.integer(forKey: "gameAdCount")
                     gameAdCount += 1
@@ -765,7 +767,7 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
                     }
                 }
                 
-            #endif
+            }
             print(gameID!)
             /*
                 if self.voted == false {
@@ -856,15 +858,15 @@ class EndGameViewController: UIViewController, UITableViewDataSource, UITableVie
             
         }
         else{
-            #if FREE
-               
-                
-                        interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+            let ads = UserDefaults.standard.bool(forKey: "ads")
+            
+            if ads{
+                        interstitial = GADInterstitial(adUnitID: "ca-app-pub-4705463543336282/5762841034")
                         let request = GADRequest()
                         interstitial.load(request)
             
                 
-            #endif
+            }
             
             for index in 1...game.images.count {
                 images.append(game.images[index-1])

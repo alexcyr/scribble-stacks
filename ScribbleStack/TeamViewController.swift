@@ -507,7 +507,7 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 
                 // A message hint for the dialog. Note this manifests differently depending on the
                 // received invation type. For example, in an email invite this appears as the subject.
-                invite.setMessage("You've been invited to join team \(self.teamName!) in Scribble Stacks!")
+                invite.setMessage("You've been invited to join team \(self.teamTitle) in Scribble Stacks!")
                 // Title for the dialog, this is what the user sees before sending the invites.
                 invite.setTitle("Invite Friends")
                 invite.setDeepLink("\(encodedURL)")
@@ -808,7 +808,9 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 controller.changeName = changeName
                 controller.team = team
                 controller.coins = self.coins
-
+                let backItem = UIBarButtonItem()
+                backItem.title = ""
+                navigationItem.backBarButtonItem = backItem
                 self.ref?.removeAllObservers()
                 
             }
@@ -819,6 +821,9 @@ class TeamViewController: UIViewController, UITableViewDataSource, UITableViewDe
             let controller = segue.destination as! EndGameViewController
             if teamID != nil{
                 controller.gameID = selectedGame
+                let backItem = UIBarButtonItem()
+                backItem.title = ""
+                navigationItem.backBarButtonItem = backItem
                 
                 self.ref?.removeAllObservers()
                 

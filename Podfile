@@ -6,6 +6,7 @@ target 'ScribbleStacks' do
   use_frameworks!
 
   # Pods for ScribbleStacks
+pod 'Firebase', '4.0.4'
 pod 'Firebase/Core'
 pod 'Firebase/Auth'
 pod 'Firebase/Database'
@@ -16,7 +17,6 @@ pod 'SideMenu'
 pod 'NVActivityIndicatorView'
 pod 'DHSmartScreenshot'
 pod 'lottie-ios'
-pod 'Fakery'
 pod 'SwipeableTabBarController'
 pod 'Firebase/AdMob'
 
@@ -27,6 +27,7 @@ target 'ScribbleStacksFree' do
   use_frameworks!
 
   # Pods for ScribbleStacksFree
+pod 'Firebase', '4.0.4'
 pod 'Firebase/Core'
 pod 'Firebase/Auth'
 pod 'Firebase/Database'
@@ -37,7 +38,6 @@ pod 'SideMenu'
 pod 'NVActivityIndicatorView'
 pod 'DHSmartScreenshot'
 pod 'lottie-ios'
-pod 'Fakery'
 pod 'SwipeableTabBarController'
 pod 'Firebase/AdMob'
 

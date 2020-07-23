@@ -70,6 +70,7 @@
 		AE3E27511DD92E06009E9A54 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3E27501DD92E06009E9A54 /* LoginViewController.swift */; };
 		AE53A3471F4A808B0072AECC /* alienLoading.json in Resources */ = {isa = PBXBuildFile; fileRef = AE53A3411F4A808B0072AECC /* alienLoading.json */; };
 		AE5F33F8202B8A630084466D /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE5F33F7202B8A630084466D /* AboutViewController.swift */; };
+		AE61158720368D7B00D1E48E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AE61158620368D7B00D1E48E /* GoogleService-Info.plist */; };
 		AE68088020324137000DD9F2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE32E8CC202E7AAE0025EBED /* Assets.xcassets */; };
 		AE68088120324142000DD9F2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE32E8CC202E7AAE0025EBED /* Assets.xcassets */; };
 		AE6D4DAC1E4AB8990076CFAF /* NewsCycle-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AE6D4DAA1E4AB8990076CFAF /* NewsCycle-Bold.ttf */; };
@@ -177,12 +178,8 @@
 		AEBE9D9A1ED7BC2D004B67EB /* Loader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE9D991ED7BC2D004B67EB /* Loader.swift */; };
 		AEC140C21DF4E97500151CFD /* CaptionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3BACDF1DBC131600556F88 /* CaptionViewController.swift */; };
 		AEC140C41DF8EB3500151CFD /* Team.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC140C31DF8EB3500151CFD /* Team.swift */; };
-		AEC23B7620332EE400428725 /* GoogleService-Info-Free.plist in Resources */ = {isa = PBXBuildFile; fileRef = AEC23B7520332EE300428725 /* GoogleService-Info-Free.plist */; };
-		AEC23B7720332EF000428725 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AEDFBB7020179F26008C5A30 /* GoogleService-Info.plist */; };
-		AEC23B7820333C7D00428725 /* GoogleService-Info-Free.plist in Resources */ = {isa = PBXBuildFile; fileRef = AEC23B7520332EE300428725 /* GoogleService-Info-Free.plist */; };
 		AED2BD961F1D955E00454A33 /* publicGameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED2BD951F1D955E00454A33 /* publicGameViewController.swift */; };
 		AEDFBB6D2013D472008C5A30 /* HowToViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEDFBB6C2013D472008C5A30 /* HowToViewController.swift */; };
-		AEDFBB7120179F27008C5A30 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AEDFBB7020179F26008C5A30 /* GoogleService-Info.plist */; };
 		AEDFBB73201D5D23008C5A30 /* NewTeamTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEDFBB72201D5D22008C5A30 /* NewTeamTabViewController.swift */; };
 		AEF7341F1F53875F000D3AA5 /* img_0.png in Resources */ = {isa = PBXBuildFile; fileRef = AEF7341B1F53875F000D3AA5 /* img_0.png */; };
 		AEF734201F53875F000D3AA5 /* img_1.png in Resources */ = {isa = PBXBuildFile; fileRef = AEF7341C1F53875F000D3AA5 /* img_1.png */; };
@@ -294,6 +291,7 @@
 		AE3E2BFB1DD93EDC009E9A54 /* ScribbleStack.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScribbleStack.entitlements; sourceTree = "<group>"; };
 		AE53A3411F4A808B0072AECC /* alienLoading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = alienLoading.json; sourceTree = "<group>"; };
 		AE5F33F7202B8A630084466D /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
+		AE61158620368D7B00D1E48E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AE6D4DAA1E4AB8990076CFAF /* NewsCycle-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NewsCycle-Bold.ttf"; sourceTree = "<group>"; };
 		AE6D4DAB1E4AB8990076CFAF /* NewsCycle-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NewsCycle-Regular.ttf"; sourceTree = "<group>"; };
 		AE738E4C1DAAB2A500E7B7BD /* ScribbleStacks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScribbleStacks.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -323,10 +321,8 @@
 		AEBD441A1DDC0FA6003378F6 /* ChooseGameViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChooseGameViewController.swift; sourceTree = "<group>"; };
 		AEBE9D991ED7BC2D004B67EB /* Loader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Loader.swift; sourceTree = "<group>"; };
 		AEC140C31DF8EB3500151CFD /* Team.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Team.swift; sourceTree = "<group>"; };
-		AEC23B7520332EE300428725 /* GoogleService-Info-Free.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-Free.plist"; path = "../../../../Desktop/GoogleService-Info-Free.plist"; sourceTree = "<group>"; };
 		AED2BD951F1D955E00454A33 /* publicGameViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = publicGameViewController.swift; sourceTree = "<group>"; };
 		AEDFBB6C2013D472008C5A30 /* HowToViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowToViewController.swift; sourceTree = "<group>"; };
-		AEDFBB7020179F26008C5A30 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AEDFBB72201D5D22008C5A30 /* NewTeamTabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTeamTabViewController.swift; sourceTree = "<group>"; };
 		AEF7341B1F53875F000D3AA5 /* img_0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = img_0.png; sourceTree = "<group>"; };
 		AEF7341C1F53875F000D3AA5 /* img_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = img_1.png; sourceTree = "<group>"; };
@@ -601,14 +597,13 @@
 				AE3BACE11DC1854200556F88 /* BufferScreenViewController.swift */,
 				AE03433C1F0F0B0B00FCE426 /* SideMenuViewController.swift */,
 				AE738E5B1DAAB2A500E7B7BD /* Info.plist */,
+				AE61158620368D7B00D1E48E /* GoogleService-Info.plist */,
 				AE9EA3CD2030DA1C00E275D3 /* ScribbleStacksFreeInfo.plist */,
 				AE11FFC71DC2D681007E9213 /* EndGameViewController.swift */,
-				AEC23B7520332EE300428725 /* GoogleService-Info-Free.plist */,
 				AE3E27501DD92E06009E9A54 /* LoginViewController.swift */,
 				AE320FC11DDBF858005BD41E /* HomeViewController.swift */,
 				AE320FC31DDC021C005BD41E /* InviteViewController.swift */,
 				AEBD441A1DDC0FA6003378F6 /* ChooseGameViewController.swift */,
-				AEDFBB7020179F26008C5A30 /* GoogleService-Info.plist */,
 				AE1D24761DE27FA7008D388E /* TeamNameViewController.swift */,
 				AEC140C31DF8EB3500151CFD /* Team.swift */,
 				AE3BC65C1E03941A007782BB /* TeamViewController.swift */,
@@ -704,6 +699,9 @@
 							com.apple.Keychain = {
 								enabled = 1;
 							};
+							com.apple.Push = {
+								enabled = 1;
+							};
 							com.apple.SafariKeychain = {
 								enabled = 1;
 							};
@@ -711,6 +709,11 @@
 					};
 					AE9EA3672030DA1C00E275D3 = {
 						DevelopmentTeam = JDSG4BB4NN;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 0;
+							};
+						};
 					};
 				};
 			};
@@ -741,12 +744,12 @@
 				AEF7341F1F53875F000D3AA5 /* img_0.png in Resources */,
 				AE3736C41F1A84040019616D /* Rajdhani-Medium.ttf in Resources */,
 				AE32E8B8202CEA420025EBED /* img_2@2x.png in Resources */,
-				AEDFBB7120179F27008C5A30 /* GoogleService-Info.plist in Resources */,
 				AE99898C1E9ACF240056A6C6 /* Main.storyboard in Resources */,
 				AE6D4DAC1E4AB8990076CFAF /* NewsCycle-Bold.ttf in Resources */,
 				AE9E34541EBD58FD00AA2511 /* Pacifico.ttf in Resources */,
 				AE32E8BD202CF33E0025EBED /* img_2@3x.png in Resources */,
 				AE32E8C9202CF6090025EBED /* img_1@3x.png in Resources */,
+				AE61158720368D7B00D1E48E /* GoogleService-Info.plist in Resources */,
 				AE3736C31F1A84000019616D /* Rajdhani-Light.ttf in Resources */,
 				AE32E8C4202CF6090025EBED /* img_3@2x.png in Resources */,
 				AE3736C11F1A83F60019616D /* Rajdhani-Bold.ttf in Resources */,
@@ -767,7 +770,6 @@
 				AE3736C01F1A83F40019616D /* BungeeInline-Regular.ttf in Resources */,
 				AE03433F1F11DEA600FCE426 /* names.json in Resources */,
 				AE3736C91F1A84B40019616D /* Bungee-Regular.ttf in Resources */,
-				AEC23B7620332EE400428725 /* GoogleService-Info-Free.plist in Resources */,
 				AEA963C71E5E782B00900EAA /* DHSmartScreenshot in Resources */,
 				AE3736BF1F1A83F10019616D /* BungeeShade-Regular.ttf in Resources */,
 				AE3E27341DD6C9EC009E9A54 /* LoadingView.xib in Resources */,
@@ -787,7 +789,6 @@
 				AE9EA3AD2030DA1C00E275D3 /* Pacifico.ttf in Resources */,
 				AE9EA3AE2030DA1C00E275D3 /* img_2@3x.png in Resources */,
 				AE9EA3AF2030DA1C00E275D3 /* img_1@3x.png in Resources */,
-				AEC23B7720332EF000428725 /* GoogleService-Info.plist in Resources */,
 				AE9EA3B02030DA1C00E275D3 /* Rajdhani-Light.ttf in Resources */,
 				AE9EA3B12030DA1C00E275D3 /* img_3@2x.png in Resources */,
 				AE9EA3B22030DA1C00E275D3 /* Rajdhani-Bold.ttf in Resources */,
@@ -806,7 +807,6 @@
 				AE9EA3BE2030DA1C00E275D3 /* NewsCycle-Regular.ttf in Resources */,
 				AE9EA3BF2030DA1C00E275D3 /* Rajdhani-SemiBold.ttf in Resources */,
 				AE9EA3C02030DA1C00E275D3 /* BungeeInline-Regular.ttf in Resources */,
-				AEC23B7820333C7D00428725 /* GoogleService-Info-Free.plist in Resources */,
 				AE9EA3C12030DA1C00E275D3 /* names.json in Resources */,
 				AE9EA3C22030DA1C00E275D3 /* Bungee-Regular.ttf in Resources */,
 				AE9EA3C32030DA1C00E275D3 /* DHSmartScreenshot in Resources */,
@@ -1083,6 +1083,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1139,6 +1140,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1204,6 +1206,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				CODE_SIGN_ENTITLEMENTS = ScribbleStack/ScribbleStack.entitlements;
 				DEVELOPMENT_TEAM = JDSG4BB4NN;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/ScribbleStack/ScribbleStacksFreeInfo.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1225,6 +1228,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				CODE_SIGN_ENTITLEMENTS = ScribbleStack/ScribbleStack.entitlements;
 				DEVELOPMENT_TEAM = JDSG4BB4NN;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/ScribbleStack/ScribbleStacksFreeInfo.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

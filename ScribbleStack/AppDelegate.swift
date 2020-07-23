@@ -31,41 +31,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        #if FREE
-            let filePath = Bundle.main.path(forResource: "GoogleService-Info-Free", ofType: "plist")!
-            let options = FirebaseOptions(contentsOfFile: filePath)
-            FirebaseOptions.defaultOptions()?.deepLinkURLScheme = "com.bigcatcreativelabs.scribblestacks"
-
-            FirebaseApp.configure(options: options!)
-        #else
-            let filePath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist")!
-            let options = FirebaseOptions(contentsOfFile: filePath)
-            FirebaseOptions.defaultOptions()?.deepLinkURLScheme = "com.bigcatcreativelabs.scribblestacks"
-
-            FirebaseApp.configure(options: options!)
-            
-        #endif
         
-        #if FREE
-            GADMobileAds.configure(withApplicationID: "ca-app-pub-3940256099942544~1458002511")
-        #endif
+        FirebaseApp.configure()
+            
+      
+        
+        
             
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         GIDSignIn.sharedInstance().delegate = self
-        DynamicLinks.performDiagnostics(completion: nil)
-
+        //DynamicLinks.performDiagnostics(completion: nil)
+        
+        
         if !(UserDefaults.standard.bool(forKey: "hasLaunched")){
             
+            
+            
             let userDefaults = UserDefaults.standard
-            #if FREE
-                userDefaults.setValue(0, forKey: "gameAdCount")
-            #endif
+            userDefaults.setValue(0, forKey: "gameAdCount")
+            UserDefaults.standard.setValue(true, forKey: "ads")
+            userDefaults.setValue(0, forKey: "earnedCoins")
             userDefaults.setValue(0, forKey: "earnedCoins")
             userDefaults.setValue(true, forKey: "hasLaunched")
           
             let ownedWords: NSDictionary = ["Easy": true, "Medium": false, "Hard": false]
             userDefaults.setValue(ownedWords, forKey: "ownedWords")
             
+        }
+        let ads = UserDefaults.standard.bool(forKey: "ads")
+
+        if ads{
+            GADMobileAds.configure(withApplicationID: "ca-app-pub-4705463543336282~6802737761")
         }
       
        
@@ -84,7 +80,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         if (launchOptions?[UIApplicationLaunchOptionsKey.url] as? NSURL) != nil {
             //App opened from invite url
             print("is there something here?")
-            self.handleFirebaseInviteDeeplink()
+            //self.handleFirebaseInviteDeeplink()
         }
         
         
@@ -102,7 +98,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             print("Failed to log into Google", err)
         }
         else{
-        
+        print("potato")
         
         print("Successfully logged into Google", user)
         guard let idToken = user.authentication.idToken else{return}
@@ -166,533 +162,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
                             
                             self.ref?.child("Teams").child("000000").child("teamInfo/users").child("\(self.userID)").setValue(["activeGame" : false])
                             
-                            //dog names
-                            let names : NSArray = [
-                                "Acorn",
-                                "Afro",
-                                "Alfie",
-                                "Alvin",
-                                "Apollo",
-                                "Appu",
-                                "Archibald",
-                                "Aretha",
-                                "A-Rod",
-                                "Asia",
-                                "Askher",
-                                "Asta",
-                                "Astro",
-                                "Attila",
-                                "Audi",
-                                "Babe",
-                                "bacha",
-                                "Bacon",
-                                "Badamo",
-                                "Bagel",
-                                "Bakri",
-                                "Balou",
-                                "Bander",
-                                "Bangi",
-                                "Banjo",
-                                "Barclay",
-                                "Barfolomew",
-                                "Barfy",
-                                "Barkley",
-                                "Barnaby",
-                                "Barney",
-                                "Bear",
-                                "Beck",
-                                "Beethoven",
-                                "Bellatrix",
-                                "Benji",
-                                "Bettsy",
-                                "Betty",
-                                "Bianca",
-                                "Big Guy",
-                                "Big Red",
-                                "Biggie Smalls",
-                                "Bilbo",
-                                "Bili",
-                                "Billy the Kid",
-                                "Biloxi",
-                                "Bimmer",
-                                "Bingo",
-                                "Birdie",
-                                "Biscuit",
-                                "Bisojo",
-                                "Blanca",
-                                "Blinker",
-                                "Blondie",
-                                "Blood",
-                                "Blue",
-                                "Bobbafett",
-                                "Bobby Mcgee",
-                                "Bodie",
-                                "Bon Bon",
-                                "Bond",
-                                "Bones",
-                                "Bonga",
-                                "Bongo",
-                                "Bono",
-                                "Booboo",
-                                "Boomer",
-                                "Bootsie",
-                                "Bordeaux",
-                                "Boss",
-                                "Brain",
-                                "Brandy",
-                                "Bren",
-                                "Brinkley",
-                                "Bronco",
-                                "Brownie",
-                                "Bruin",
-                                "Bubba",
-                                "Bubbles",
-                                "Buck",
-                                "Buckaroo",
-                                "Buckley",
-                                "Buddy",
-                                "Buffalo Bill",
-                                "Buffy",
-                                "Bullet",
-                                "Bullseye",
-                                "Burger",
-                                "Burrito",
-                                "Burt",
-                                "Busch",
-                                "Buster",
-                                "Butler",
-                                "Button",
-                                "Buzz",
-                                "Byte",
-                                "Cabbie",
-                                "Caesar",
-                                "Calvin",
-                                "CamPayne",
-                                "Candy",
-                                "Captain Crunch",
-                                "Carter",
-                                "Cato",
-                                "Cece",
-                                "Cessa",
-                                "Chainsaw",
-                                "Chali",
-                                "Chanbaili",
-                                "Chance",
-                                "Chauncer",
-                                "Cheecheechee",
-                                "Cheerio",
-                                "Cheeta",
-                                "CheriPitts",
-                                "Chevy",
-                                "Chewie",
-                                "Chex",
-                                "Cho-Cho",
-                                "Choochoo",
-                                "Chopin",
-                                "Chopper",
-                                "Griswold",
-                                "Cletus",
-                                "Cloe",
-                                "Clooney",
-                                "Clumsy",
-                                "Coco",
-                                "Cookie Monster",
-                                "Copernicus",
-                                "Cosmo",
-                                "Crunch E.",
-                                "Cujo",
-                                "Cupcake",
-                                "Czar",
-                                "Daisy",
-                                "Dallas",
-                                "Demon",
-                                "Deputy Dawg",
-                                "Dew",
-                                "Diesel",
-                                "Dino",
-                                "Diva",
-                                "Dobo",
-                                "Doc",
-                                "Dolce",
-                                "Dollar",
-                                "Domino",
-                                "Donald",
-                                "Donna",
-                                "Doomsbury",
-                                "Doozer",
-                                "Dowser",
-                                "Draula",
-                                "Duchess",
-                                "Dude",
-                                "Dudi",
-                                "Duster",
-                                "Dutch",
-                                "Dynamite",
-                                "Einstein",
-                                "Elf",
-                                "Elmo",
-                                "Elton",
-                                "Elvis",
-                                "Ernie",
-                                "Ewok",
-                                "Fabio",
-                                "Faith",
-                                "Farley",
-                                "Faya",
-                                "Felix",
-                                "Fig",
-                                "Fiona",
-                                "Fitch",
-                                "Foxy",
-                                "Frank",
-                                "Fresca",
-                                "Fritz",
-                                "Furbulous",
-                                "Fuse",
-                                "Fuzzy",
-                                "Gala",
-                                "Genie",
-                                "George",
-                                "Giblet",
-                                "Giggles",
-                                "Ginger",
-                                "Git-er-don",
-                                "Glamour",
-                                "Gnasher",
-                                "Gobler",
-                                "Goldilocks",
-                                "Goliath",
-                                "Gonzo",
-                                "Goofus",
-                                "Goofy",
-                                "Gordo",
-                                "Gort",
-                                "Grandma",
-                                "Grandpa",
-                                "Gravy",
-                                "Greystoke",
-                                "Grimmy",
-                                "Grumpus Maximus",
-                                "Grunt",
-                                "Gulabo",
-                                "Gumball",
-                                "Harry",
-                                "Hercules",
-                                "Hershey",
-                                "Hobbit",
-                                "Homer",
-                                "Honey",
-                                "Hopalong",
-                                "Hoser",
-                                "Hot Dog",
-                                "Ike",
-                                "Indira",
-                                "Iris",
-                                "Inaha",
-                                "Imu",
-                                "Ijaba",
-                                "Istari",
-                                "Iscoli",
-                                "Irish",
-                                "Icecream",
-                                "Jabbers",
-                                "Jade",
-                                "Jasmine",
-                                "Jasper",
-                                "Jay Jay",
-                                "Jazu",
-                                "Jazzy",
-                                "Jeckyll",
-                                "Jeeves",
-                                "Jingle Bells",
-                                "Juty",
-                                "K-9",
-                                "Kai",
-                                "Kaka",
-                                "Kalikaloti",
-                                "Kankan",
-                                "Kashi",
-                                "Kaya",
-                                "Keanu",
-                                "Keesha",
-                                "Keiko",
-                                "Khota",
-                                "Khotida",
-                                "Kibbles",
-                                "Killer",
-                                "King Edward",
-                                "Kingston",
-                                "Kissy",
-                                "Koby",
-                                "Kodu",
-                                "Ko-Ko",
-                                "Kona",
-                                "Kootie Bear",
-                                "Kramer",
-                                "Krypton",
-                                "Kuki",
-                                "Kutayda",
-                                "Kutt",
-                                "Lady",
-                                "Laggar bggar",
-                                "Laguna",
-                                "Laker",
-                                "Lassie",
-                                "Lazy Daisy",
-                                "Lefty",
-                                "Leia",
-                                "Lexi",
-                                "Liberty",
-                                "Lil’bit",
-                                "Lilypie",
-                                "Lime",
-                                "Linus",
-                                "Lola",
-                                "Lou",
-                                "Luca",
-                                "Lucky",
-                                "Lucky Charms",
-                                "Lunchbox",
-                                "Macbeth",
-                                "Macgyver",
-                                "Madam X",
-                                "Mademoiselle",
-                                "Majaha",
-                                "Major",
-                                "Makhyu",
-                                "Marble",
-                                "Mama Mia",
-                                "Mangu",
-                                "Marasi",
-                                "Marco Polo",
-                                "Margo",
-                                "Marky Mark",
-                                "Marmaduke",
-                                "Marshmellow",
-                                "Matisse",
-                                "Matsuhisa",
-                                "McGruff",
-                                "Meadow",
-                                "Meatball",
-                                "Meeda",
-                                "Meraku",
-                                "Mercedes",
-                                "Merlot",
-                                "Mezzaluna",
-                                "Michelangelo",
-                                "Michelobe",
-                                "Midnight",
-                                "Midori",
-                                "Mika",
-                                "Milo",
-                                "Mimmo",
-                                "Mira",
-                                "Mischa",
-                                "Missingno",
-                                "Missy",
-                                "Mitzi",
-                                "Moby",
-                                "Mochi",
-                                "Monet",
-                                "Monkey",
-                                "Moo",
-                                "Mooshie",
-                                "Momo",
-                                "Mopsy",
-                                "Moreno",
-                                "Moti",
-                                "Motor",
-                                "Mowgli",
-                                "Mozart",
-                                "Mr Big",
-                                "Mr. Lovva",
-                                "Mr. Muggles",
-                                "Mr. Pants",
-                                "Mrs. Chewy",
-                                "Ms. Barbra",
-                                "Ms. Lulu",
-                                "Muggles",
-                                "Mulligan",
-                                "Mylo",
-                                "Nana",
-                                "Nanda",
-                                "Nani",
-                                "Nico",
-                                "Nikki",
-                                "Ninja",
-                                "Noodle",
-                                "Nosykins",
-                                "Nugget",
-                                "Odie",
-                                "OJ",
-                                "Old Jack",
-                                "Old Yellar",
-                                "Olive",
-                                "Onyx",
-                                "Oreo",
-                                "Otis",
-                                "Ozzie",
-                                "Paddington",
-                                "Paisley",
-                                "Pampa",
-                                "Panapan",
-                                "Pappi",
-                                "Pappu",
-                                "Paris",
-                                "Parro",
-                                "Patina",
-                                "Paw-Paw",
-                                "Pazzo",
-                                "Peanut",
-                                "Peanut Butter",
-                                "Pearl",
-                                "Pee Wee",
-                                "Peety",
-                                "Pepper",
-                                "Pepperoni",
-                                "Peppy",
-                                "Phoenix",
-                                "Pinkie",
-                                "Pinot",
-                                "Pistol",
-                                "Piston",
-                                "Pixie",
-                                "Pluto",
-                                "Polka",
-                                "Pom-Pom",
-                                "Pongo",
-                                "Porkchop",
-                                "Precious",
-                                "Puck",
-                                "Pugsley",
-                                "Punch",
-                                "Pussycat",
-                                "Putt-Putt",
-                                "Queen",
-                                "Quixote",
-                                "Ramona",
-                                "Red Rose",
-                                "Ricky Bobby",
-                                "Rico",
-                                "Rin Tin",
-                                "Road Runner",
-                                "Robin Hood",
-                                "Rocco",
-                                "Rocky",
-                                "Rogue",
-                                "Romeo",
-                                "Rorschach",
-                                "Rosy",
-                                "Roxie",
-                                "Ruff",
-                                "Rufus",
-                                "Rugby",
-                                "Rusty",
-                                "Scamp",
-                                "Scooby",
-                                "Scooper",
-                                "Scotty",
-                                "Scout",
-                                "Seismic",
-                                "Sephora",
-                                "Seuss",
-                                "Shadow",
-                                "Shaggy",
-                                "Shamsky",
-                                "Shiloh",
-                                "Shorty",
-                                "Sinatra",
-                                "Sirius",
-                                "Skip",
-                                "Sleepy",
-                                "Slink",
-                                "Slobber",
-                                "Smitty",
-                                "Smoochy",
-                                "Sniff",
-                                "Snooky",
-                                "Snoopy",
-                                "Snowy",
-                                "Cookie",
-                                "Spark",
-                                "Sparky",
-                                "Spike",
-                                "Spirit",
-                                "Spud",
-                                "Squirt",
-                                "Steeler",
-                                "Stinky",
-                                "Stitch",
-                                "Strsky",
-                                "Sugar",
-                                "Superdog",
-                                "Sushi",
-                                "Su-Su",
-                                "Sven",
-                                "Sweet Tooth",
-                                "Sweetpea",
-                                "Sweety",
-                                "Sweaty",
-                                "Taco",
-                                "Tagalong",
-                                "Talli",
-                                "Tallulah",
-                                "Tanboori",
-                                "Tango",
-                                "Tank",
-                                "Tanner",
-                                "Target",
-                                "Tatertot",
-                                "T-Bone",
-                                "Tibbs",
-                                "Tiger",
-                                "Timber",
-                                "Ting Ting",
-                                "Tink",
-                                "Tinko",
-                                "Toad",
-                                "Toast",
-                                "Toffee",
-                                "Tonka",
-                                "Toota",
-                                "Tooter",
-                                "Toothpick",
-                                "Toto",
-                                "Tres",
-                                "T-Rex",
-                                "Tripawd",
-                                "Trix",
-                                "Twinkie",
-                                "Twinkle",
-                                "Wacko",
-                                "Waffles",
-                                "Wednesday",
-                                "Wheaties",
-                                "Whoopi",
-                                "Wilbur",
-                                "Willow",
-                                "Wonka",
-                                "Winnie",
-                                "Wolfie",
-                                "Woofy",
-                                "Yankee",
-                                "Yo Yo Ma",
-                                "Yodel",
-                                "Yoshiko",
-                                "Zakoota",
-                                "Zara",
-                                "Zeke",
-                                "Zelda",
-                                "Zeus",
-                                "ZsaZsa"
-                            ]
-                            
-                            // Do stuff
-                            
-                            let getRandom = self.randomSequenceGenerator(min: 1, max: names.count)
-                            
-                            name = names[getRandom()-1] as! String
-                            
+
                             let changeRequest = user.createProfileChangeRequest()
                             
                             changeRequest.displayName = "\(name)"
@@ -849,54 +319,81 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      return false
      }
      
-     
+     */
+    /*
+     Working on Firebase '4.0.4'
+ */
+    @available(iOS 9.0, *)
+    func application(_ application: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any])
+        -> Bool {
+            print("hey2", url)
+            if let invite = Invites.handle(url, sourceApplication:"", annotation:"") as? ReceivedInvite {
+                
+                let matchType =
+                    (invite.matchType == .weak) ? "Weak" : "Strong"
+                print("Invite received from: none Deeplink: \(invite.deepLink)," +
+                    "Id: \(invite.inviteId), Type: \(matchType)")
+                let url = invite.deepLink
+                let deeplinkTeamArray = url.components(separatedBy: "teamID=")
+                teamID = deeplinkTeamArray[1]
+                print(teamID)
+                self.ref = Database.database().reference()
+                self.ref = Database.database().reference()
+                
+                self.handleFirebaseInviteDeeplink()
+                
+                
+            }
+            return GIDSignIn.sharedInstance().handle(url,
+                                                     sourceApplication:options[UIApplicationOpenURLOptionsKey.sourceApplication] as? String,
+                                                     annotation: [:])
+    }
+
+    
     func application(_ application: UIApplication,
                      open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
         print("hey", url)
         if let invite = Invites.handle(url, sourceApplication:sourceApplication, annotation:annotation) as? ReceivedInvite {
-            print("Successfully logged into Firebase with Google")
-            
             
             let matchType =
                 (invite.matchType == .weak) ? "Weak" : "Strong"
-            print("Invite received from: \(sourceApplication) Deeplink: \(invite.deepLink)," +
+            print("Invite received from: , Deeplink: \(invite.deepLink)," +
                 "Id: \(invite.inviteId), Type: \(matchType)")
             let url = invite.deepLink
             let deeplinkTeamArray = url.components(separatedBy: "teamID=")
             teamID = deeplinkTeamArray[1]
             print(teamID)
             self.ref = Database.database().reference()
+            self.ref = Database.database().reference()
             
-            
-            var teamName: String = ""
-            print("tintin")
-            
-            // self.ref.child("Teams/\(self.teamID)/teamInfo/users").child("\(self.userID)").setValue(["activeGame": false])
-            // self.ref.child("Users").child(self.userID).child("Teams").child("\(self.teamID)").setValue([true])
-            let topWindow: UIWindow = UIWindow(frame: UIScreen.main.bounds)
-            topWindow.rootViewController = UIViewController()
-            topWindow.windowLevel = UIWindowLevelAlert + 1
-            let alert = UIAlertController(title: "Alert", message: "Added to team \(teamName))", preferredStyle: UIAlertControllerStyle.alert)
-            alert.addAction(UIAlertAction(title: "ok", style: UIAlertActionStyle.default, handler: {(action: UIAlertAction) -> Void in
-                // continue your work
-                // important to hide the window after work completed.
-                // this also keeps a reference to the window until the action is invoked.
-                
-                topWindow.isHidden = true
-            }))
-            
-            topWindow.makeKeyAndVisible()
-            topWindow.rootViewController?.present(alert, animated: true, completion: nil)
+            self.handleFirebaseInviteDeeplink()
             
             
         }
+        return GIDSignIn.sharedInstance().handle(url,
+                                                 sourceApplication: sourceApplication,
+                                                 annotation: annotation)
     
-    
-    
-    return true
 }
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        guard let dynamicLinks = DynamicLinks.dynamicLinks() else {
+            return false
+        }
+        let handled = dynamicLinks.handleUniversalLink(userActivity.webpageURL!) { (dynamiclink, error) in
+            let url = dynamiclink?.url
+            let str = url?.absoluteString
+            let deeplinkTeamArray = str!.components(separatedBy: "teamID=")
+            self.teamID = deeplinkTeamArray[1]
+            self.ref = Database.database().reference()
+            self.ref = Database.database().reference()
+            
+            self.handleFirebaseInviteDeeplink()
+        }
+        
+        return handled
+    }
 
-*/
+
      /*
      func application(application: UIApplication, continueUserActivity userActivity: NSUserActivity, restorationHandler:([AnyObject]?)-> Void) -> Bool{
      if let incomingURL = userActivity.webpageURL{
@@ -1011,8 +508,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
      }
  */
     
-    
-    
+    /*
+    LAST WORKING
     @available(iOS 9.0, *)
     func application(_ application: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any])
         -> Bool {
@@ -1087,6 +584,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         }
         return true
     }
+ */
     func handleFirebaseInviteDeeplink(){
         var teamName: String = ""
         print("tintin")
@@ -1139,7 +637,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             
         }
     }
-    
+ 
     func showAlertAppDelegate(title : String,message : String,buttonTitle : String,window: UIWindow){
         let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
         alert.addAction(UIAlertAction(title: buttonTitle, style: UIAlertActionStyle.default, handler: nil))

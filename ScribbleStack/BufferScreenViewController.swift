@@ -41,6 +41,7 @@ class BufferScreenViewController: UIViewController, NVActivityIndicatorViewable{
     var noGames = true
     var strCnt = 0
     var coins = 0
+    var currency = 0
     var fromEnd = false
     var interstitial: GADInterstitial!
     var interstitialShown = false
@@ -216,15 +217,16 @@ found.text = ""
         
         super.viewDidLoad()
         
-        #if FREE
-            
+        let ads = UserDefaults.standard.bool(forKey: "ads")
+        
+        if ads{
                 if interstitial != nil && interstitial.isReady {
                     interstitial.present(fromRootViewController: self)
                 } else {
                     print("Ad wasn't ready")
                 }
             
-        #endif
+        }
         
         let earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
         coins = earnedCoins
@@ -469,11 +471,21 @@ found.text = ""
             coin.curve = "easeInOut"
             coin.animate()
         }
-        let earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
         coins = coins + 5
         coinOutlet.text = "\(coins)"
 
+        if teamID != nil{
+            self.currency = self.currency + 5
+            if let user  = Auth.auth().currentUser{
+                
+                let userID: String = user.uid
+            self.ref?.child("Users/\(userID)/currency").setValue(self.currency)
+            }
+        }
+        else{
+            let earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
         UserDefaults.standard.setValue((earnedCoins+5), forKey: "earnedCoins")
+        }
     }
     func letterAnimStart(){
         let found = self.view.viewWithTag(9) as! UILabel
@@ -582,9 +594,9 @@ found.text = ""
             ref.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
                 print("hallo")
                 let data = snapshot.value as? NSDictionary
-                let currency = data?["currency"] as! Int
+                self.currency = data?["currency"] as! Int
                 
-                self.coins = self.coins + currency
+                self.coins = self.coins + self.currency
                 self.coinOutlet.text = "\(self.coins)"
                 print("turnips", self.coins)
                 
@@ -928,6 +940,47 @@ found.text = ""
                                         }
                                     }
                                 
+                                    if gameStatus == "ended"{
+                                        if let endUser = userData["\(userID)"]{
+                                            if endUser as! Bool == true{
+                                                if let timestamp = gameData?["time"]! as? TimeInterval{
+                                                    let currentTime = NSDate()
+                                                    
+                                                    print("time winner")
+                                                    print(timestamp)
+                                                    print(currentTime)
+                                                    let converted1 = NSDate(timeIntervalSince1970: timestamp / 1000)
+                                                    print(converted1)
+                                                    let interval = currentTime.timeIntervalSince(converted1 as Date)
+                                                    print(interval)
+                                                    
+                                                }
+                                                let userData = gameData?["users"]! as? NSDictionary
+                                                
+                                                print("holy poop")
+                                                var user = ""
+                                                self.users = Array(userData!.allKeys) as! [String]
+                                                let value = Array(userData!.allValues) as! [Bool]
+                                                var count = 0
+                                                for x in self.users{
+                                                    let userValue = value[count]
+                                                    count += 1
+                                                    user = x
+                                                    if userValue == true{
+                                                        if user == userID{
+                                                            print("poop2")
+                                                            if self.gameID == nil{
+                                                                
+                                                                self.gameID = data
+                                                                self.endGame = true
+                                                            }
+                                                        }
+                                                    }
+                                                    
+                                                }
+                                            }
+                                        }
+                                }
                                 if userKey == true{
                                 if gameStatus == inplay{
                                     
@@ -1013,47 +1066,7 @@ found.text = ""
                                         }
                                     }
                                 }
-                                    else if gameStatus == "ended"{
-                                        if let endUser = userData["\(userID)"]{
-                                            if endUser as! Bool == true{
-                                                if let timestamp = gameData?["time"]! as? TimeInterval{
-                                                    let currentTime = NSDate()
-                                                    
-                                                    print("time winner")
-                                                    print(timestamp)
-                                                    print(currentTime)
-                                                    let converted1 = NSDate(timeIntervalSince1970: timestamp / 1000)
-                                                    print(converted1)
-                                                    let interval = currentTime.timeIntervalSince(converted1 as Date)
-                                                    print(interval)
-                                                    
-                                                }
-                                                let userData = gameData?["users"]! as? NSDictionary
-                                                
-                                                print("holy poop")
-                                                var user = ""
-                                                self.users = Array(userData!.allKeys) as! [String]
-                                                let value = Array(userData!.allValues) as! [Bool]
-                                                var count = 0
-                                                for x in self.users{
-                                                    let userValue = value[count]
-                                                    count += 1
-                                                    user = x
-                                                    if userValue == true{
-                                                        if user == userID{
-                                                            print("poop2")
-                                                            if self.gameID == nil{
-                                                                
-                                                                self.gameID = data
-                                                                self.endGame = true
-                                                            }
-                                                        }
-                                                    }
-                                                    
-                                                }
-                                            }
-                                        }
-                                    }
+                                
                                 }
                                 
                             

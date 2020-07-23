@@ -40,18 +40,20 @@ class publicGameViewController: UIViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        #if FREE
+        let ads = UserDefaults.standard.bool(forKey: "ads")
+        
+        if ads{
             bannerView.adSize = kGADAdSizeSmartBannerPortrait
-            bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+            bannerView.adUnitID = "ca-app-pub-4705463543336282/3929162414"
             bannerView.rootViewController = self
             bannerView.load(GADRequest())
+}
             
-            
-        #else
+        else{
             bannerView.frame.size.height = 0
             bannerView.isHidden = true
             print("not free")
-        #endif
+        }
         if Auth.auth().currentUser != nil{
             loggedIn = true
             

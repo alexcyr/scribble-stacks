@@ -66,7 +66,7 @@ class TabBarViewController: SwipeableTabBarController {
             
         }
         
-        
+     
         
         self.navigationController?.setNavigationBarHidden(false, animated: true)
         
@@ -209,6 +209,7 @@ class TabBarViewController: SwipeableTabBarController {
         label.sizeToFit()
         let newBackButton = UIBarButtonItem(customView: label)
         
+       
         
         self.navigationItem.rightBarButtonItem = newBackButton
     }

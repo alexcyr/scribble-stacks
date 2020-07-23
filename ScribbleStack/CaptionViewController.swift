@@ -34,7 +34,8 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     var teamID: String!
     var typing = true
     var word: Caption!
-    var counter = 30
+    var counter = 60
+    var coins = 0
     var base64String: NSString!
     var decodedImage: UIImage!
     var didStart = false
@@ -255,6 +256,14 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
             if let user  = Auth.auth().currentUser{
                 
                 let userID: String = user.uid
+                self.ref?.child("Users/\(userID)").observeSingleEvent(of: .value, with: { (snapshot) in
+                    print(snapshot)
+                    if snapshot.hasChildren(){
+                        let snap = snapshot.value! as! NSDictionary
+                        self.coins = (snap["currency"] as! Int)
+                    }
+                })
+                
                 ref?.child("Games/\(gameID!)").observeSingleEvent(of: .value, with: { (snapshot) in
                     let data = snapshot.value as? NSDictionary
                     let team = data?["team"] as! String
@@ -288,13 +297,15 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
     }
     func captionDone(){
        
-        #if FREE
+        let ads = UserDefaults.standard.bool(forKey: "ads")
+        
+        if ads{
             if gameID != nil{
             var gameAdCount = UserDefaults.standard.integer(forKey: "gameAdCount")
             gameAdCount += 1
             UserDefaults.standard.setValue(gameAdCount, forKey: "gameAdCount")
                 if gameAdCount >= 4 {
-                    interstitial = GADInterstitial(adUnitID: "ca-app-pub-3940256099942544/4411468910")
+                    interstitial = GADInterstitial(adUnitID: "ca-app-pub-4705463543336282/5762841034")
                     let request = GADRequest()
                     interstitial.load(request)
                     UserDefaults.standard.setValue(0, forKey: "gameAdCount")
@@ -302,7 +313,7 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
                 }
 
             }
-        #endif
+        }
         
         didStart = false
         finishedWord = true
@@ -333,6 +344,11 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
         
         let drawingLayerImage = self.view.viewWithTag(2026) as! UILabel
         drawingLayerImage.text = captionField.text! as String
+        let text = captionField.text! as String
+        let textArr = text.split(separator: " ")
+        if textArr.count == 1{
+            drawingLayerImage.numberOfLines = 1
+        }
         
         if UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad {
             drawingLayerImage.font = UIFont(name: "Bungee-Regular", size: 48)
@@ -391,9 +407,7 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
         coin3.curve = "easeInOut"
         coin3.animate()
         
-        var earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
-        earnedCoins += 3
-        UserDefaults.standard.setValue(earnedCoins, forKey: "earnedCoins")
+        
         
         let verticalMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.y",
                                                                type: .tiltAlongVerticalAxis)
@@ -457,6 +471,8 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
                 self.ref?.child("Games/\(gameID!)/time").setValue(interval)
                 self.ref?.child("Games/\(gameID!)/status").setValue("inplay")
                 self.ref?.child("Teams/\(teamID!)/teamInfo/time").setValue(interval)
+                self.coins = self.coins + 3
+                self.ref?.child("Users/\(userID)/currency").setValue(self.coins)
                 if (teamID!) == "000000"{
                     self.ref?.child("Users/\(userID)/Public/\(gameID!)").setValue(true)
                     
@@ -472,7 +488,9 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
         else{
             let label = captionField.text
             game.captions.append(Caption(phrase: label!))
-            
+            var earnedCoins = UserDefaults.standard.integer(forKey: "earnedCoins")
+            earnedCoins += 3
+            UserDefaults.standard.setValue(earnedCoins, forKey: "earnedCoins")
         }
     }
     
@@ -487,6 +505,9 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
             let controller = segue.destination as! BufferScreenViewController
             if teamID != nil{
                 controller.teamID = teamID
+                controller.interstitial = interstitial
+                self.ref?.removeAllObservers()
+
             }
             else{
                 controller.game = game
@@ -522,6 +543,13 @@ class CaptionViewController: UIViewController, UITextFieldDelegate {
             
         }
         else {
+            let blurEffectView = UIView()
+            blurEffectView.backgroundColor = UIColor.clear
+            //always fill the view
+            blurEffectView.tag = 555
+            blurEffectView.frame = self.view.bounds
+            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            viewA.addSubview(blurEffectView)
             viewA.backgroundColor = UIColor.white
         }
         let view1 = self.view.viewWithTag(758)!
